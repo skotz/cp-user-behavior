@@ -1,0 +1,7 @@
+*.cache
+*.suo
+*.manifest
+*.key
+bin/
+obj/
+packages/
