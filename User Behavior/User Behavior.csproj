@@ -60,9 +60,11 @@
     <Compile Include="Objects\ArticleTag.cs" />
     <Compile Include="Objects\Suggestion.cs" />
     <Compile Include="Objects\Tag.cs" />
+    <Compile Include="Objects\TestResults.cs" />
     <Compile Include="Objects\User.cs" />
     <Compile Include="Objects\UserAction.cs" />
     <Compile Include="Objects\UserActionTag.cs" />
+    <Compile Include="Objects\UserArticleRating.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classifiers\UserBehaviorClassifier.cs" />

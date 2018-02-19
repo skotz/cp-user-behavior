@@ -22,14 +22,24 @@ namespace UserBehavior
             //classifier.TrainClassifier();
 
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
-            UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
+            UserBehaviorDatabase trainDb = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
+            UserBehaviorDatabase testDb = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
+
+            // Split the data into a training set from days 1-29 and a testing set from day 30
+            int lastDay = trainDb.UserActions.Max(x => x.Day);
+            trainDb.UserActions.RemoveAll(x => x.Day == lastDay);
+            testDb.UserActions.RemoveAll(x => x.Day != lastDay);
 
             RootMeanSquareUserComparer rms = new RootMeanSquareUserComparer();
             UserBehaviorClassifier ubc = new UserBehaviorClassifier(rms);
 
-            //ubc.Train(db);
-            //ubc.Save("model-20180218.dat");
-            ubc.Load("model-20180218.dat");
+            //ubc.Train(trainDb);
+            //ubc.Save("model-20180218-e.dat");
+            ubc.Load("model-20180218-e.dat");
+
+            TestResults results = ubc.Test(testDb, 5);
+
+            ubc.GetSuggestions(1, 5);
         }
 
         private void btnParseDatabase_Click(object sender, EventArgs e)
@@ -43,26 +53,26 @@ namespace UserBehavior
 
         private void bgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            string file = (string)e.Argument;
+            //string file = (string)e.Argument;
 
-            UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
-            UserBehaviorDatabase trainDb = dbp.LoadUserBehaviorDatabase(file);
-            UserBehaviorDatabase testDb = dbp.LoadUserBehaviorDatabase(file);
+            //UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
+            //UserBehaviorDatabase trainDb = dbp.LoadUserBehaviorDatabase(file);
+            //UserBehaviorDatabase testDb = dbp.LoadUserBehaviorDatabase(file);
 
-            // Split the data into a training set from days 1-29 and a testing set from day 30
-            int lastDay = trainDb.UserActions.Max(x => x.Day);
-            trainDb.UserActions.RemoveAll(x => x.Day == lastDay);
-            testDb.UserActions.RemoveAll(x => x.Day != lastDay);
+            //// Split the data into a training set from days 1-29 and a testing set from day 30
+            //int lastDay = trainDb.UserActions.Max(x => x.Day);
+            //trainDb.UserActions.RemoveAll(x => x.Day == lastDay);
+            //testDb.UserActions.RemoveAll(x => x.Day != lastDay);
 
-            // It's important that we generate the user features off data that's not in the testing set
-            UserBehaviorTransformer trainTransform = new UserBehaviorTransformer(trainDb);
-            trainTransform.WriteArticleFeaturesToFile("article-features.csv");
-            trainTransform.WriteUserArticleTagsToFile("user-features.csv");
-            trainTransform.WriteUserArticleRatingsToFile("user-article-ratings-train.csv");
+            //// It's important that we generate the user features off data that's not in the testing set
+            //UserBehaviorTransformer trainTransform = new UserBehaviorTransformer(trainDb);
+            //trainTransform.WriteArticleFeaturesToFile("article-features.csv");
+            //trainTransform.WriteUserArticleTagsToFile("user-features.csv");
+            //trainTransform.WriteUserArticleRatingsToFile("user-article-ratings-train.csv");
 
-            // The testing set contains only data from the last day
-            UserBehaviorTransformer testTransform = new UserBehaviorTransformer(testDb);
-            testTransform.WriteUserArticleRatingsToFile("user-article-ratings-test.csv");
+            //// The testing set contains only data from the last day
+            //UserBehaviorTransformer testTransform = new UserBehaviorTransformer(testDb);
+            //testTransform.WriteUserArticleRatingsToFile("user-article-ratings-test.csv");
         }
 
         private void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

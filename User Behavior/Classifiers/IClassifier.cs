@@ -10,6 +10,8 @@ namespace UserBehavior
     {
         void Train(UserBehaviorDatabase db);
 
+        TestResults Test(UserBehaviorDatabase db, int topN);
+
         List<Suggestion> GetSuggestions(int userId, int numSuggestions);
 
         void Save(string file);
