@@ -1,5 +1,8 @@
-﻿namespace UserBehavior
+﻿using System;
+
+namespace UserBehavior
 {
+    [Serializable]
     class User
     {
         public int UserID { get; set; }

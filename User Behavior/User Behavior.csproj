@@ -65,6 +65,8 @@
     <Compile Include="Objects\UserAction.cs" />
     <Compile Include="Objects\UserActionTag.cs" />
     <Compile Include="Objects\UserArticleRating.cs" />
+    <Compile Include="Parsers\DaySplitter.cs" />
+    <Compile Include="Parsers\ISplitter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classifiers\UserBehaviorClassifier.cs" />

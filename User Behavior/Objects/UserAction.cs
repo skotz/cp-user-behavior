@@ -1,5 +1,8 @@
-﻿namespace UserBehavior
+﻿using System;
+
+namespace UserBehavior
 {
+    [Serializable]
     class UserAction
     {
         public int Day { get; set; }

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace UserBehavior
 {
+    [Serializable]
     class Article
     {
         public int ArticleID { get; set; }

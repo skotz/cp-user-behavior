@@ -1,5 +1,8 @@
-﻿namespace UserBehavior
+﻿using System;
+
+namespace UserBehavior
 {
+    [Serializable]
     class Tag
     {
         public string Name { get; set; }

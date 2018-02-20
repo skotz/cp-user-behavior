@@ -131,7 +131,7 @@ namespace UserBehavior
 
             if (actions.Any(x => x.Action == "DownVote"))
             {
-                rating = 0;
+                rating = -5;
             }
             else
             {

@@ -16,19 +16,13 @@ namespace UserBehavior
         public MainForm()
         {
             InitializeComponent();
-
-            //UserBehaviorClassifier classifier = new UserBehaviorClassifier();
-
-            //classifier.TrainClassifier();
-
+            
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
-            UserBehaviorDatabase trainDb = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
-            UserBehaviorDatabase testDb = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
+            UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
 
-            // Split the data into a training set from days 1-29 and a testing set from day 30
-            int lastDay = trainDb.UserActions.Max(x => x.Day);
-            trainDb.UserActions.RemoveAll(x => x.Day == lastDay);
-            testDb.UserActions.RemoveAll(x => x.Day != lastDay);
+            ISplitter sp = new DaySplitter(db, 5);
+            UserBehaviorDatabase trainDb = sp.GetTrainingDatabase();
+            UserBehaviorDatabase testDb = sp.GetTestingDatabase();
 
             RootMeanSquareUserComparer rms = new RootMeanSquareUserComparer();
             UserBehaviorClassifier ubc = new UserBehaviorClassifier(rms);
