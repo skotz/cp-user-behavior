@@ -24,12 +24,17 @@ namespace UserBehavior
             UserBehaviorDatabase trainDb = sp.GetTrainingDatabase();
             UserBehaviorDatabase testDb = sp.GetTestingDatabase();
 
-            RootMeanSquareUserComparer rms = new RootMeanSquareUserComparer();
-            UserBehaviorClassifier ubc = new UserBehaviorClassifier(rms);
+            //IUserComparer uc = new RootMeanSquareUserComparer();
+            IUserComparer uc = new CoRatedCosineUserComparer();
+            UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc);
 
             //ubc.Train(trainDb);
-            //ubc.Save("model-20180218-e.dat");
-            ubc.Load("model-20180218-e.dat");
+            //ubc.Save("model-20180218-f.dat");
+            ubc.Load("model-20180220-g.dat");
+
+            //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
+            //ubc.userArticleRatings = x.GetUserArticleRatings();
+            //ubc.Save("model-20180220-g.dat");
 
             TestResults results = ubc.Test(testDb, 5);
 

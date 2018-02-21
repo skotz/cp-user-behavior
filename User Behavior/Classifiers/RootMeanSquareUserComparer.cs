@@ -17,7 +17,8 @@ namespace UserBehavior
                 score += Math.Pow(userFeaturesOne[i] - userFeaturesTwo[i], 2);
             }
 
-            return Math.Sqrt(score / userFeaturesOne.Length);
+            // Higher numbers indicate closer similarity
+            return -Math.Sqrt(score / userFeaturesOne.Length);
         }
     }
 }

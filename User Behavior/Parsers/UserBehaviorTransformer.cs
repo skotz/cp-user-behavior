@@ -28,6 +28,44 @@ namespace UserBehavior
         }
 
         /// <summary>
+        /// Get a list of all users and their ratings on every article
+        /// </summary>
+        public List<UserArticleRatings> GetUserArticleRatingsTable()
+        {
+            List<UserArticleRatings> ratings = new List<UserArticleRatings>();
+
+            List<int> userIds = db.UserActions.Select(x => x.UserID).Distinct().ToList();
+            List<int> articleIds = db.UserActions.Select(x => x.ArticleID).Distinct().ToList();
+
+            var userArticleRatings = db.UserActions
+                .GroupBy(x => new { x.UserID, x.ArticleID })
+                .Select(g => new { g.Key.UserID, g.Key.ArticleID, Rating = GetRating(g) })
+                .OrderBy(x => x.UserID).ThenBy(x => x.ArticleID)
+                .ToList();
+            
+            for (int userIndex = 0; userIndex < userIds.Count; userIndex++)
+            {
+                int userId = userIds[userIndex];
+                UserArticleRatings rating = new UserArticleRatings(userId, articleIds.Count);
+
+                for (int articleIndex = 0; articleIndex < articleIds.Count; articleIndex++)
+                {
+                    int articleId = articleIds[articleIndex];
+                    var userRating = userArticleRatings.FirstOrDefault(x => x.ArticleID == articleId && x.UserID == userId);
+
+                    if (userRating != null)
+                    {
+                        rating.ArticleRatings[articleIndex] = userRating.Rating;
+                    }
+                }
+
+                ratings.Add(rating);
+            }
+
+            return ratings;
+        }
+
+        /// <summary>
         /// Get a list of all users with their ratings on every action-tag pair
         /// </summary>
         public List<UserActionTag> GetUserActionTags()

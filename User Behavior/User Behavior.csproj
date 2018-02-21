@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classifiers\CoRatedCosineUserComparer.cs" />
+    <Compile Include="Classifiers\CosineUserComparer.cs" />
     <Compile Include="Classifiers\IClassifier.cs" />
     <Compile Include="Classifiers\IUserComparer.cs" />
     <Compile Include="Classifiers\RootMeanSquareUserComparer.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Objects\TestResults.cs" />
     <Compile Include="Objects\User.cs" />
     <Compile Include="Objects\UserAction.cs" />
+    <Compile Include="Objects\UserArticleRatings.cs" />
     <Compile Include="Objects\UserActionTag.cs" />
     <Compile Include="Objects\UserArticleRating.cs" />
     <Compile Include="Parsers\DaySplitter.cs" />

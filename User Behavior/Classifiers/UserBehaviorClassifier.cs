@@ -11,7 +11,7 @@ namespace UserBehavior
     class UserBehaviorClassifier : IClassifier
     {
         private IUserComparer comparer;
-        private List<UserActionTag> userActionTags;
+        private List<UserArticleRatings> RATINGS;
         private List<UserArticleRating> userArticleRatings;
 
         public UserBehaviorClassifier(IUserComparer userComparer)
@@ -22,13 +22,14 @@ namespace UserBehavior
         public void Train(UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            userActionTags = ubt.GetUserActionTags();
+            RATINGS = ubt.GetUserArticleRatingsTable();
             userArticleRatings = ubt.GetUserArticleRatings();
         }
 
         public TestResults Test(UserBehaviorDatabase db, int topN)
         {
             int correct = 0;
+            int madeSuggestions = 0;
 
             // Get a list of users in this database who interacted with an article for the first time
             List<UserAction> testUsers = db.UserActions.Where(x => !userArticleRatings.Any(u => u.UserID == x.UserID && u.ArticleID == x.ArticleID)).ToList();
@@ -38,6 +39,12 @@ namespace UserBehavior
             foreach (int user in distinctUsers)
             {
                 List<Suggestion> suggestions = GetSuggestions(user, topN);
+
+                if (suggestions.Count > 0)
+                {
+                    madeSuggestions++;
+                }
+
                 foreach (Suggestion s in suggestions)
                 {
                     // If one of the top N suggestions is what the user ended up reading, then we're golden!
@@ -49,36 +56,44 @@ namespace UserBehavior
                 }
             }
 
-            return new TestResults(distinctUsers.Count, correct);
+            return new TestResults(distinctUsers.Count, madeSuggestions, correct);
         }
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
-            UserActionTag user = userActionTags.FirstOrDefault(x => x.UserID == userId);
+            UserArticleRatings user = RATINGS.FirstOrDefault(x => x.UserID == userId);
             List<Suggestion> suggestions = new List<Suggestion>();
-            List<int> articles = new List<int>();
 
             if (user != null)
             {
-                for (int i = 0; i < userActionTags.Count; i++)
+                for (int i = 0; i < RATINGS.Count; i++)
                 {
-                    if (userActionTags[i].UserID == userId)
+                    if (RATINGS[i].UserID == userId)
                     {
-                        userActionTags[i].Score = double.MaxValue;
+                        RATINGS[i].Score = double.NegativeInfinity;
                     }
                     else
                     {
-                        userActionTags[i].Score = comparer.CompareUsers(userActionTags[i].ActionTagData, user.ActionTagData);
+                        RATINGS[i].Score = comparer.CompareUsers(RATINGS[i].ArticleRatings, user.ArticleRatings);
                     }
                 }
 
                 // Rank every user by how similar their article tag preferences are to the user for which we're getting suggestions.
                 // Then find all the articles each of these users have rated and sort by their user similarity score first and
                 // their article rating second. This should get an ordered list of article recommendations for a given user.
-                var suggestedArticles = userActionTags
+                var suggestedArticles = RATINGS
                     .Join(userArticleRatings, t => t.UserID, a => a.UserID, (t, a) => new { t.UserID, t.Score, a.Rating, a.ArticleID })
-                    .OrderBy(x => x.Score).ThenBy(x => -x.Rating).ToList();
-                
+                    .OrderBy(x => x.Rating > 0 ? 0 : 1).ThenBy(x => -x.Score).ThenBy(x => -x.Rating).ToList();
+
+                // For normalizing the ratings
+                double minScore = 0;
+                double maxScore = 1;
+                if (suggestedArticles.Count > 0)
+                {
+                    minScore = suggestedArticles.Where(x => !double.IsNegativeInfinity(x.Score)).Min(x => x.Score);
+                    maxScore = suggestedArticles.Where(x => !double.IsNegativeInfinity(x.Score)).Max(x => x.Score);
+                }
+
                 foreach (var article in suggestedArticles)
                 {
                     // Only collect a specific number of suggestions
@@ -86,14 +101,14 @@ namespace UserBehavior
                     {
                         break;
                     }
-                    
+
                     // Only suggest articles the target user hasn't viewed yet
                     if (!userArticleRatings.Any(x => x.ArticleID == article.ArticleID && x.UserID == userId))
                     {
                         // Don't suggest the same article more than once
                         if (!suggestions.Any(x => x.ArticleID == article.ArticleID))
                         {
-                            suggestions.Add(new Suggestion(userId, article.ArticleID, article.Score));
+                            suggestions.Add(new Suggestion(userId, article.ArticleID, 1.0 - (article.Score - minScore) / (maxScore - minScore)));
                         }
                     }
                 }
@@ -108,14 +123,14 @@ namespace UserBehavior
             using (GZipStream zip = new GZipStream(fs, CompressionMode.Compress))
             using (StreamWriter w = new StreamWriter(zip))
             {
-                w.WriteLine(userActionTags.Count);
-                w.WriteLine(userActionTags[0].ActionTagData.Length);
+                w.WriteLine(RATINGS.Count);
+                w.WriteLine(RATINGS[0].ArticleRatings.Length);
 
-                foreach (UserActionTag t in userActionTags)
+                foreach (UserArticleRatings t in RATINGS)
                 {
                     w.WriteLine(t.UserID);
 
-                    foreach (double v in t.ActionTagData)
+                    foreach (double v in t.ArticleRatings)
                     {
                         w.WriteLine(v);
                     }
@@ -134,7 +149,7 @@ namespace UserBehavior
 
         public void Load(string file)
         {
-            userActionTags = new List<UserActionTag>();
+            RATINGS = new List<UserArticleRatings>();
             userArticleRatings = new List<UserArticleRating>();
 
             using (FileStream fs = new FileStream(file, FileMode.Open))
@@ -147,16 +162,16 @@ namespace UserBehavior
                 for (long i = 0; i < total; i++)
                 {
                     int userId = int.Parse(r.ReadLine());
-                    UserActionTag uat = new UserActionTag(userId, features);
+                    UserArticleRatings uat = new UserArticleRatings(userId, features);
 
                     for (int x = 0; x < features; x++)
                     {
-                        uat.ActionTagData[x] = double.Parse(r.ReadLine());
+                        uat.ArticleRatings[x] = double.Parse(r.ReadLine());
                     }
 
-                    userActionTags.Add(uat);
+                    RATINGS.Add(uat);
                 }
-
+                
                 total = long.Parse(r.ReadLine());
 
                 for (long i = 0; i < total; i++)
