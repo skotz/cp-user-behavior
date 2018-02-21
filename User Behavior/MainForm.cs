@@ -29,12 +29,12 @@ namespace UserBehavior
             UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc);
 
             //ubc.Train(trainDb);
-            //ubc.Save("model-20180218-f.dat");
-            ubc.Load("model-20180220-g.dat");
+            //ubc.Save("model-20180220-i.dat");
+            ubc.Load("model-20180220-i.dat");
 
             //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
             //ubc.userArticleRatings = x.GetUserArticleRatings();
-            //ubc.Save("model-20180220-g.dat");
+            //ubc.Save("model-20180220-h.dat");
 
             TestResults results = ubc.Test(testDb, 5);
 

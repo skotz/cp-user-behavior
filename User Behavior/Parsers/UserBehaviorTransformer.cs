@@ -30,39 +30,37 @@ namespace UserBehavior
         /// <summary>
         /// Get a list of all users and their ratings on every article
         /// </summary>
-        public List<UserArticleRatings> GetUserArticleRatingsTable()
+        public UserArticleRatingsTable GetUserArticleRatingsTable()
         {
-            List<UserArticleRatings> ratings = new List<UserArticleRatings>();
+            UserArticleRatingsTable table = new UserArticleRatingsTable();
 
-            List<int> userIds = db.UserActions.Select(x => x.UserID).Distinct().ToList();
-            List<int> articleIds = db.UserActions.Select(x => x.ArticleID).Distinct().ToList();
+            table.UserIndexToID = db.UserActions.OrderBy(x => x.UserID).Select(x => x.UserID).Distinct().ToList();
+            table.ArticleIndexToID = db.UserActions.OrderBy(x => x.ArticleID).Select(x => x.ArticleID).Distinct().ToList();
 
-            var userArticleRatings = db.UserActions
-                .GroupBy(x => new { x.UserID, x.ArticleID })
-                .Select(g => new { g.Key.UserID, g.Key.ArticleID, Rating = GetRating(g) })
-                .OrderBy(x => x.UserID).ThenBy(x => x.ArticleID)
-                .ToList();
-            
-            for (int userIndex = 0; userIndex < userIds.Count; userIndex++)
+            foreach (int userId in table.UserIndexToID)
             {
-                int userId = userIds[userIndex];
-                UserArticleRatings rating = new UserArticleRatings(userId, articleIds.Count);
-
-                for (int articleIndex = 0; articleIndex < articleIds.Count; articleIndex++)
-                {
-                    int articleId = articleIds[articleIndex];
-                    var userRating = userArticleRatings.FirstOrDefault(x => x.ArticleID == articleId && x.UserID == userId);
-
-                    if (userRating != null)
-                    {
-                        rating.ArticleRatings[articleIndex] = userRating.Rating;
-                    }
-                }
-
-                ratings.Add(rating);
+                table.UserArticleRatings.Add(new UserArticleRatings(userId, table.ArticleIndexToID.Count));
             }
 
-            return ratings;
+            var userArticleRatingGroup = db.UserActions
+                .GroupBy(x => new { x.UserID, x.ArticleID })
+                .Select(g => new { g.Key.UserID, g.Key.ArticleID, Rating = GetRating(g) })
+                .ToList();
+
+            foreach (UserAction userAction in db.UserActions)
+            {
+                int userIndex = table.UserIndexToID.IndexOf(userAction.UserID);
+                int articleIndex = table.ArticleIndexToID.IndexOf(userAction.ArticleID);
+
+                var userRating = userArticleRatingGroup.FirstOrDefault(x => x.ArticleID == userAction.ArticleID && x.UserID == userAction.UserID);
+
+                if (userRating != null)
+                {
+                    table.UserArticleRatings[userIndex].ArticleRatings[articleIndex] = userRating.Rating;
+                }
+            }
+
+            return table;
         }
 
         /// <summary>
