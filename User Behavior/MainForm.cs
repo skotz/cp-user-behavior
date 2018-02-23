@@ -18,27 +18,28 @@ namespace UserBehavior
             InitializeComponent();
             
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
-            UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
+            UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
 
             DaySplitter sp = new DaySplitter(db, 2);
             UserBehaviorDatabase trainDb = sp.GetTrainingDatabase();
             UserBehaviorDatabase testDb = sp.GetTestingDatabase();
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
-            IUserComparer uc = new CoRatedCosineUserComparer();
+            //IUserComparer uc = new CoRatedCosineUserComparer();
+            IUserComparer uc = new CorrelationUserComparer();
             UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 20);
 
             //ubc.Train(trainDb);
-            //ubc.Save("model-20180220-i.dat");
-            ubc.Load("model-20180220-i.dat");
+            //ubc.Save("model-20180222-l.dat");
+            ubc.Load("model-20180222-l.dat");
 
             //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
             //ubc.userArticleRatings = x.GetUserArticleRatings();
             //ubc.Save("model-20180220-h.dat");
 
-            ScoreResults scores = ubc.Score(testDb);
+            // ScoreResults scores = ubc.Score(testDb);
 
-            TestResults results = ubc.Test(testDb, 5);
+            TestResults results = ubc.Test(testDb, 10);
 
             ubc.GetSuggestions(1, 5);
         }

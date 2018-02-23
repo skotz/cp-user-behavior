@@ -99,12 +99,12 @@ namespace UserBehavior
         public double GetRating(int userId, int articleId)
         {
             UserArticleRatings user = RATINGS.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
-            List<UserArticleRatings> neighbors = GetNearestNeighbors(userId, user, neighborCount);
+            List<UserArticleRatings> neighbors = GetNearestNeighbors(user, neighborCount);
 
-            return GetRating(neighbors, userId, articleId);
+            return GetRating(neighbors, articleId);
         }
 
-        private double GetRating(List<UserArticleRatings> neighbors, int userId, int articleId)
+        private double GetRating(List<UserArticleRatings> neighbors, int articleId)
         {
             int articleIndex = RATINGS.ArticleIndexToID.IndexOf(articleId);
 
@@ -143,13 +143,13 @@ namespace UserBehavior
                 //    }
                 //}
 
-                var neighbors = GetNearestNeighbors(userId, user, neighborCount);
+                var neighbors = GetNearestNeighbors(user, neighborCount);
                 
                 for (int i = 0; i < RATINGS.ArticleIndexToID.Count; i++)
                 {
                     suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], 0.0));
 
-                    // If the user in question hasn't rating the given article yet
+                    // If the user in question hasn't rated the given article yet
                     if (user.ArticleRatings[i] == 0)
                     {
                         double score = 0.0;
@@ -219,13 +219,13 @@ namespace UserBehavior
             return suggestions.Take(numSuggestions).ToList();
         }
 
-        private List<UserArticleRatings> GetNearestNeighbors(int userId, UserArticleRatings user, int numUsers)
+        private List<UserArticleRatings> GetNearestNeighbors(UserArticleRatings user, int numUsers)
         {
             List<UserArticleRatings> neighbors = new List<UserArticleRatings>();
 
             for (int i = 0; i < RATINGS.UserArticleRatings.Count; i++)
             {
-                if (RATINGS.UserArticleRatings[i].UserID == userId)
+                if (RATINGS.UserArticleRatings[i].UserID == user.UserID)
                 {
                     RATINGS.UserArticleRatings[i].Score = double.NegativeInfinity;
                 }

@@ -33,9 +33,9 @@ namespace UserBehavior
         public UserArticleRatingsTable GetUserArticleRatingsTable()
         {
             UserArticleRatingsTable table = new UserArticleRatingsTable();
-
-            table.UserIndexToID = db.UserActions.OrderBy(x => x.UserID).Select(x => x.UserID).Distinct().ToList();
-            table.ArticleIndexToID = db.UserActions.OrderBy(x => x.ArticleID).Select(x => x.ArticleID).Distinct().ToList();
+            
+            table.UserIndexToID = db.Users.OrderBy(x => x.UserID).Select(x => x.UserID).Distinct().ToList();
+            table.ArticleIndexToID = db.Articles.OrderBy(x => x.ArticleID).Select(x => x.ArticleID).Distinct().ToList();
 
             foreach (int userId in table.UserIndexToID)
             {
@@ -161,14 +161,64 @@ namespace UserBehavior
             }
         }
 
-        private int GetRating(IGrouping<object, UserAction> actions)
+        private double GetRating(IGrouping<object, UserAction> actions)
         {
-            int rating = 0;
+            double rating = 0;
 
-            rating += actions.Count(x => x.Action == "DownVote") * -2;
-            rating += actions.Count(x => x.Action == "View") * 1;
-            rating += actions.Count(x => x.Action == "UpVote") * 2;
-            rating += actions.Count(x => x.Action == "Download") * 1;
+            //if (actions.Any(x => x.Action == "DownVote"))
+            //{
+            //    rating = 1;
+            //}
+            //else
+            //{
+            //    if (actions.Any(x => x.Action == "View"))
+            //    {
+            //        rating += 2;
+            //    }
+
+            //    if (actions.Any(x => x.Action == "UpVote"))
+            //    {
+            //        rating += 2;
+            //    }
+
+            //    if (actions.Any(x => x.Action == "Download"))
+            //    {
+            //        rating += 1;
+            //    }
+            //}
+
+            foreach (UserAction ua in actions)
+            {
+                if (ua.Action == "DownVote")
+                {
+                    rating = 1;
+                }
+                else
+                {
+                    if (ua.Action == "View")
+                    {
+                        rating += 2;
+                    }
+
+                    if (ua.Action == "UpVote")
+                    {
+                        rating += 2;
+                    }
+
+                    if (ua.Action == "Download")
+                    {
+                        rating += 1;
+                    }
+                }
+
+                // Minimize the impact of older ratings
+                rating *= 0.99;
+            }
+
+            //rating += actions.Count(x => x.Action == "DownVote") * -2;
+            //rating += actions.Count(x => x.Action == "View") * 1;
+            //rating += actions.Count(x => x.Action == "UpVote") * 2;
+            //rating += actions.Count(x => x.Action == "Download") * 1;
 
             //if (actions.Any(x => x.Action == "DownVote"))
             //{
