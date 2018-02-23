@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="Objects\Article.cs" />
     <Compile Include="Objects\ArticleTag.cs" />
+    <Compile Include="Objects\ScoreResults.cs" />
     <Compile Include="Objects\Suggestion.cs" />
     <Compile Include="Objects\Tag.cs" />
     <Compile Include="Objects\TestResults.cs" />

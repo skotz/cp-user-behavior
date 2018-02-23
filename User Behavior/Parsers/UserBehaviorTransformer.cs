@@ -165,27 +165,32 @@ namespace UserBehavior
         {
             int rating = 0;
 
-            if (actions.Any(x => x.Action == "DownVote"))
-            {
-                rating = -5;
-            }
-            else
-            {
-                if (actions.Any(x => x.Action == "View"))
-                {
-                    rating += 1;
-                }
+            rating += actions.Count(x => x.Action == "DownVote") * -2;
+            rating += actions.Count(x => x.Action == "View") * 1;
+            rating += actions.Count(x => x.Action == "UpVote") * 2;
+            rating += actions.Count(x => x.Action == "Download") * 1;
 
-                if (actions.Any(x => x.Action == "UpVote"))
-                {
-                    rating += 2;
-                }
+            //if (actions.Any(x => x.Action == "DownVote"))
+            //{
+            //    rating = -5;
+            //}
+            //else
+            //{
+            //    if (actions.Any(x => x.Action == "View"))
+            //    {
+            //        rating += 1;
+            //    }
 
-                if (actions.Any(x => x.Action == "Download"))
-                {
-                    rating += 1;
-                }
-            }
+            //    if (actions.Any(x => x.Action == "UpVote"))
+            //    {
+            //        rating += 2;
+            //    }
+
+            //    if (actions.Any(x => x.Action == "Download"))
+            //    {
+            //        rating += 1;
+            //    }
+            //}
 
             return rating;
         }

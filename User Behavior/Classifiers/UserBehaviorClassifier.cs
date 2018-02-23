@@ -14,9 +14,12 @@ namespace UserBehavior
         private UserArticleRatingsTable RATINGS;
         private List<UserArticleRating> userArticleRatings;
 
-        public UserBehaviorClassifier(IUserComparer userComparer)
+        private int neighborCount;
+
+        public UserBehaviorClassifier(IUserComparer userComparer, int knn)
         {
             comparer = userComparer;
+            neighborCount = knn;
         }
 
         public void Train(UserBehaviorDatabase db)
@@ -59,51 +62,131 @@ namespace UserBehavior
             return new TestResults(distinctUsers.Count, madeSuggestions, correct);
         }
 
+        public ScoreResults Score(UserBehaviorDatabase db)
+        {
+            UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
+            UserArticleRatingsTable actualRatings = ubt.GetUserArticleRatingsTable();
+
+            var distinctUserArticlePairs = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).ToList();
+
+            double score = 0.0;
+            int count = 0;
+
+            foreach (var userArticle in distinctUserArticlePairs)
+            {
+                int userIndex = actualRatings.UserIndexToID.IndexOf(userArticle.Key.UserID);
+                int articleIndex = actualRatings.ArticleIndexToID.IndexOf(userArticle.Key.ArticleID);
+
+                double actualRating = actualRatings.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
+
+                if (actualRating != 0)
+                {
+                    double predictedRating = GetRating(userArticle.Key.UserID, userArticle.Key.ArticleID);
+
+                    score += Math.Pow(predictedRating - actualRating, 2);
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                score = Math.Sqrt(score / count);
+            }
+
+            return new ScoreResults(score);
+        }
+
+        public double GetRating(int userId, int articleId)
+        {
+            UserArticleRatings user = RATINGS.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
+            List<UserArticleRatings> neighbors = GetNearestNeighbors(userId, user, neighborCount);
+
+            return GetRating(neighbors, userId, articleId);
+        }
+
+        private double GetRating(List<UserArticleRatings> neighbors, int userId, int articleId)
+        {
+            int articleIndex = RATINGS.ArticleIndexToID.IndexOf(articleId);
+
+            double score = 0.0;
+            int count = 0;
+            for (int u = 0; u < neighbors.Count; u++)
+            {
+                if (neighbors[u].ArticleRatings[articleIndex] != 0)
+                {
+                    score += neighbors[u].ArticleRatings[articleIndex];
+                    count++;
+                }
+            }
+            if (count > 0)
+            {
+                score /= count;
+            }
+
+            return score;
+        }
+
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
             UserArticleRatings user = RATINGS.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
             List<Suggestion> suggestions = new List<Suggestion>();
+            int userIndex = RATINGS.UserIndexToID.IndexOf(userId);
 
             if (user != null)
             {
-                for (int i = 0; i < RATINGS.UserArticleRatings.Count; i++)
-                {
-                    if (RATINGS.UserArticleRatings[i].UserID == userId)
-                    {
-                        RATINGS.UserArticleRatings[i].Score = double.NegativeInfinity;
-                    }
-                    else
-                    {
-                        RATINGS.UserArticleRatings[i].Score = comparer.CompareUsers(RATINGS.UserArticleRatings[i].ArticleRatings, user.ArticleRatings);
-                    }
-                }
+                //// Fill in missing ratings
+                //for (int articleIndex = 0; articleIndex < similarUsers[userIndex].ArticleRatings.Length; articleIndex++)
+                //{
+                //    if (similarUsers[userIndex].ArticleRatings[articleIndex] == 0)
+                //    {
+                //        similarUsers[userIndex].ArticleRatings[articleIndex] = averageRatings.ArticleRatings[articleIndex];
+                //    }
+                //}
 
-                var similarUsers = RATINGS.UserArticleRatings.OrderByDescending(x => x.Score).ToList();
-
-                int topUsers = 5;
-
-                UserArticleRatings uar = similarUsers[0];
-                for (int i = 1; i < topUsers; i++)
-                {
-                    uar += similarUsers[i];
-                }
+                var neighbors = GetNearestNeighbors(userId, user, neighborCount);
                 
-                // For all the articles in the combined similar user
-                for (int i = 0; i < uar.ArticleRatings.Length; i++)
+                for (int i = 0; i < RATINGS.ArticleIndexToID.Count; i++)
                 {
-                    // If the article was rated by at least one similar user
-                    if (uar.ArticleRatings[i] > 0)
+                    suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], 0.0));
+
+                    // If the user in question hasn't rating the given article yet
+                    if (user.ArticleRatings[i] == 0)
                     {
-                        // And if the article hasn't already been read by the target user
-                        if (!RATINGS.UserArticleRatings.Any(x => x.UserID == userId && x.ArticleRatings[i] != 0))
+                        double score = 0.0;
+                        int count = 0;
+                        for (int u = 0; u < neighbors.Count; u++)
                         {
-                            // Propose it as a suggestion
-                            suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], uar.ArticleRatings[i]));
+                            if (neighbors[u].ArticleRatings[i] != 0)
+                            {
+                                score += neighbors[u].ArticleRatings[i];
+                                count++;
+                            }
                         }
+                        if (count > 0)
+                        {
+                            score /= count;
+                        }
+
+                        suggestions[i].Rating = score;
                     }
                 }
 
-                suggestions.Sort((c, n) => n.Assurance.CompareTo(c.Assurance));
+                //// For all the articles in the combined similar user
+                //for (int i = 0; i < averageRatings.ArticleRatings.Length; i++)
+                //{
+                //    // If the article was rated by at least one similar user
+                //    if (averageRatings.ArticleRatings[i] > 0)
+                //    {
+                //        // And if the article hasn't already been read by the target user
+                //        if (!RATINGS.UserArticleRatings.Any(x => x.UserID == userId && x.ArticleRatings[i] != 0))
+                //        {
+                //            // Propose it as a suggestion
+                //            suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], averageRatings.ArticleRatings[i]));
+                //        }
+                //    }
+                //}
+
+                suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
 
 
                 //// Rank every user by how similar their article tag preferences are to the user for which we're getting suggestions.
@@ -112,7 +195,7 @@ namespace UserBehavior
                 //var suggestedArticles = RATINGS.UserArticleRatings
                 //    .Join(userArticleRatings, t => t.UserID, a => a.UserID, (t, a) => new { t.UserID, t.Score, a.Rating, a.ArticleID })
                 //    .OrderBy(x => x.Rating > 0 ? 0 : 1).ThenBy(x => -x.Score).ThenBy(x => -x.Rating).ToList();
-                
+
                 //foreach (var article in suggestedArticles)
                 //{
                 //    // Only collect a specific number of suggestions
@@ -134,6 +217,40 @@ namespace UserBehavior
             }
 
             return suggestions.Take(numSuggestions).ToList();
+        }
+
+        private List<UserArticleRatings> GetNearestNeighbors(int userId, UserArticleRatings user, int numUsers)
+        {
+            List<UserArticleRatings> neighbors = new List<UserArticleRatings>();
+
+            for (int i = 0; i < RATINGS.UserArticleRatings.Count; i++)
+            {
+                if (RATINGS.UserArticleRatings[i].UserID == userId)
+                {
+                    RATINGS.UserArticleRatings[i].Score = double.NegativeInfinity;
+                }
+                else
+                {
+                    RATINGS.UserArticleRatings[i].Score = comparer.CompareUsers(RATINGS.UserArticleRatings[i].ArticleRatings, user.ArticleRatings);
+                }
+            }
+
+            var similarUsers = RATINGS.UserArticleRatings.OrderByDescending(x => x.Score);
+
+            //for (int i = 1; i < numUsers; i++)
+            //{
+            //    neighbors.Add(similarUsers[i]);
+            //}
+
+            //// Get the average scores for every item
+            //UserArticleRatings averageRatings = similarUsers[0];
+            //for (int i = 1; i < numUsers; i++)
+            //{
+            //    averageRatings += similarUsers[i];
+            //}
+            //averageRatings /= numUsers;
+
+            return similarUsers.Take(numUsers).ToList();
         }
 
         public void Save(string file)

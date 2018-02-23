@@ -25,5 +25,17 @@
 
             return uar;
         }
+
+        public static UserArticleRatings operator /(UserArticleRatings uar1, double value)
+        {
+            UserArticleRatings uar = new UserArticleRatings(0, uar1.ArticleRatings.Length);
+
+            for (int i = 0; i < uar.ArticleRatings.Length; i++)
+            {
+                uar.ArticleRatings[i] = uar1.ArticleRatings[i] / value;
+            }
+
+            return uar;
+        }
     }
 }

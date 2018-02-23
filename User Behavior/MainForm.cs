@@ -20,13 +20,13 @@ namespace UserBehavior
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
             UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviors.txt");
 
-            ISplitter sp = new DaySplitter(db, 5);
+            DaySplitter sp = new DaySplitter(db, 2);
             UserBehaviorDatabase trainDb = sp.GetTrainingDatabase();
             UserBehaviorDatabase testDb = sp.GetTestingDatabase();
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
             IUserComparer uc = new CoRatedCosineUserComparer();
-            UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc);
+            UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 20);
 
             //ubc.Train(trainDb);
             //ubc.Save("model-20180220-i.dat");
@@ -35,6 +35,8 @@ namespace UserBehavior
             //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
             //ubc.userArticleRatings = x.GetUserArticleRatings();
             //ubc.Save("model-20180220-h.dat");
+
+            ScoreResults scores = ubc.Score(testDb);
 
             TestResults results = ubc.Test(testDb, 5);
 

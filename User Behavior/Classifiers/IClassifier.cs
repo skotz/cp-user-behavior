@@ -12,8 +12,12 @@ namespace UserBehavior
 
         TestResults Test(UserBehaviorDatabase db, int numSuggestions);
 
+        ScoreResults Score(UserBehaviorDatabase db);
+
         List<Suggestion> GetSuggestions(int userId, int numSuggestions);
 
+        double GetRating(int userId, int articleId);
+        
         void Save(string file);
 
         void Load(string file);
