@@ -38,15 +38,6 @@ namespace UserBehavior
             average2 /= count;
 
             double sum = 0.0;
-
-            for (int i = 0; i < userFeaturesOne.Length; i++)
-            {
-                if (userFeaturesOne[i] != 0 && userFeaturesTwo[i] != 0)
-                {
-                    sum += (userFeaturesOne[i] - average1) * (userFeaturesTwo[i] - average2);
-                }
-            }
-
             double squares1 = 0.0;
             double squares2 = 0.0;
 
@@ -54,8 +45,9 @@ namespace UserBehavior
             {
                 if (userFeaturesOne[i] != 0 && userFeaturesTwo[i] != 0)
                 {
+                    sum += (userFeaturesOne[i] - average1) * (userFeaturesTwo[i] - average2);
                     squares1 += Math.Pow(userFeaturesOne[i] - average1, 2);
-                    squares2 += Math.Pow(userFeaturesTwo[i] - squares2, 2);
+                    squares2 += Math.Pow(userFeaturesTwo[i] - average2, 2);
                 }
             }
             

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra.Double;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -12,6 +13,7 @@ namespace UserBehavior
     {
         private IUserComparer comparer;
         private UserArticleRatingsTable RATINGS;
+        //private List<UserArticleRatings> FILLED;
         private List<UserArticleRating> userArticleRatings;
 
         private int neighborCount;
@@ -27,6 +29,76 @@ namespace UserBehavior
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
             RATINGS = ubt.GetUserArticleRatingsTable();
             userArticleRatings = ubt.GetUserArticleRatings();
+
+            LoadCombinedArticleRatings();
+        }
+
+        private void LoadCombinedArticleRatings()
+        {
+            //UserArticleRatings combined = RATINGS.UserArticleRatings[0];
+            //for (int i = 1; i < RATINGS.UserArticleRatings.Count; i++)
+            //{
+            //    combined += RATINGS.UserArticleRatings[i];
+            //}
+            //combined /= RATINGS.UserArticleRatings.Count;
+
+
+            //using (StreamWriter w = new StreamWriter("cross-table.csv"))
+            //{
+            //    for (int u = 0; u < RATINGS.UserIndexToID.Count; u++)
+            //    {
+            //        for (int a = 0; a < RATINGS.ArticleIndexToID.Count; a++)
+            //        {
+            //            w.Write(RATINGS.UserArticleRatings[u].ArticleRatings[a] + (a != RATINGS.ArticleIndexToID.Count - 1 ? "," : ""));
+            //        }
+            //        w.WriteLine();
+            //    }
+            //}
+
+            //FILLED = new List<UserArticleRatings>();
+
+            //double[] avgArticleRatings = new double[RATINGS.ArticleIndexToID.Count];
+            //for (int a = 0; a < RATINGS.ArticleIndexToID.Count; a++)
+            //{
+            //    // Average all non-zero ratings for this article
+            //    var articleRatings = RATINGS.UserArticleRatings.Select(x => x.ArticleRatings[a]).Where(x => x != 0);
+            //    if (articleRatings.Count() > 0)
+            //    {
+            //        avgArticleRatings[a] = articleRatings.Average();
+            //    }
+            //}
+
+            //double[] avgUserRatings = new double[RATINGS.UserIndexToID.Count];
+            //for (int u = 0; u < RATINGS.UserIndexToID.Count; u++)
+            //{
+            //    // Average all non-zero ratings for this article
+            //    var userRatings = RATINGS.UserArticleRatings[u].ArticleRatings.Where(x => x != 0);
+            //    if (userRatings.Count() > 0)
+            //    {
+            //        avgUserRatings[u] = userRatings.Average();
+            //    }
+            //}
+
+            //for (int u = 0; u < RATINGS.UserIndexToID.Count; u++)
+            //{
+            //    FILLED.Add(new UserArticleRatings(u, RATINGS.ArticleIndexToID.Count));
+            //    for (int a = 0; a < RATINGS.ArticleIndexToID.Count; a++)
+            //    {
+            //        if (RATINGS.UserArticleRatings[u].ArticleRatings[a] == 0)
+            //        {
+            //            // Make the predicted rating for this article the product of the average rating for the given article times the averate rating given by this user
+            //            FILLED[u].ArticleRatings[a] = (avgArticleRatings[a] * avgUserRatings[u]) / 2.0;
+            //        }
+            //        else
+            //        {
+            //            FILLED[u].ArticleRatings[a] = RATINGS.UserArticleRatings[u].ArticleRatings[a];
+            //        }
+            //    }
+            //}
+
+            //var matrix = DenseMatrix.OfRows(RATINGS.UserArticleRatings.Select(x => x.ArticleRatings));            
+            //var svd = matrix.Svd();
+            //var reconstruct = svd.U * svd.W * svd.VT;
         }
 
         public TestResults Test(UserBehaviorDatabase db, int topN)
@@ -38,6 +110,11 @@ namespace UserBehavior
             List<UserAction> testUsers = db.UserActions.Where(x => !userArticleRatings.Any(u => u.UserID == x.UserID && u.ArticleID == x.ArticleID)).ToList();
             List<int> distinctUsers = testUsers.Select(x => x.UserID).Distinct().ToList();
 
+            //UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
+            //UserArticleRatingsTable TEST = ubt.GetUserArticleRatingsTable();
+            //double averageArticlesPerUserTrain = RATINGS.UserArticleRatings.Select(u => u.ArticleRatings.Count(a => a != 0)).Average();
+            //double averageArticlesPerUserTest = TEST.UserArticleRatings.Select(u => u.ArticleRatings.Count(a => a != 0)).Average();
+
             // Now get suggestions for each of these users
             foreach (int user in distinctUsers)
             {
@@ -48,9 +125,14 @@ namespace UserBehavior
                     madeSuggestions++;
                 }
 
+                foreach (var art in testUsers.Where(x => x.UserID == user))
+                {
+                    int position = suggestions.FindIndex(x => x.ArticleID == art.ArticleID);
+                }
+
                 foreach (Suggestion s in suggestions)
                 {
-                    // If one of the top N suggestions is what the user ended up reading, then we're golden!
+                    // If one of the top N suggestions is what the user ended up reading, then we're golden
                     if (testUsers.Any(x => x.UserID == user && x.ArticleID == s.ArticleID))
                     {
                         correct++;
@@ -101,26 +183,33 @@ namespace UserBehavior
             UserArticleRatings user = RATINGS.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
             List<UserArticleRatings> neighbors = GetNearestNeighbors(user, neighborCount);
 
-            return GetRating(neighbors, articleId);
+            return GetRating(user, neighbors, articleId);
         }
 
-        private double GetRating(List<UserArticleRatings> neighbors, int articleId)
+        private double GetRating(UserArticleRatings user, List<UserArticleRatings> neighbors, int articleId)
         {
             int articleIndex = RATINGS.ArticleIndexToID.IndexOf(articleId);
+
+            var nonZero = user.ArticleRatings.Where(x => x != 0);
+            double avgUserRating = nonZero.Count() > 0 ? nonZero.Average() : 0.0;
 
             double score = 0.0;
             int count = 0;
             for (int u = 0; u < neighbors.Count; u++)
             {
+                var nonZeroRatings = neighbors[u].ArticleRatings.Where(x => x != 0);
+                double avgRating = nonZeroRatings.Count() > 0 ? nonZeroRatings.Average() : 0.0;
+
                 if (neighbors[u].ArticleRatings[articleIndex] != 0)
                 {
-                    score += neighbors[u].ArticleRatings[articleIndex];
+                    score += neighbors[u].ArticleRatings[articleIndex] - avgRating;
                     count++;
                 }
             }
             if (count > 0)
             {
                 score /= count;
+                score += avgUserRating;
             }
 
             return score;
@@ -143,12 +232,27 @@ namespace UserBehavior
                 //    }
                 //}
 
+
+                //for (int articleIndex = 0; articleIndex < RATINGS.ArticleIndexToID.Count; articleIndex++)
+                //{
+                //    int articleId = RATINGS.ArticleIndexToID[articleIndex];
+
+                //    // Only suggest articles the user hasn't read yet
+                //    if (RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] == 0)
+                //    {
+                //        double rating = GetRating(user, neighbors, articleId);
+
+                //        suggestions.Add(new Suggestion(userId, articleId, rating));
+                //    }
+                //}
+
+                //var nonZero = user.ArticleRatings.Where(x => x != 0);
+                //double avgUserRating = nonZero.Count() > 0 ? nonZero.Average() : 0.0;
+
                 var neighbors = GetNearestNeighbors(user, neighborCount);
-                
+
                 for (int i = 0; i < RATINGS.ArticleIndexToID.Count; i++)
                 {
-                    suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], 0.0));
-
                     // If the user in question hasn't rated the given article yet
                     if (user.ArticleRatings[i] == 0)
                     {
@@ -158,16 +262,21 @@ namespace UserBehavior
                         {
                             if (neighbors[u].ArticleRatings[i] != 0)
                             {
-                                score += neighbors[u].ArticleRatings[i];
+                                //var nonZeroRatings = neighbors[u].ArticleRatings.Where(x => x != 0);
+                                //double avgRating = nonZeroRatings.Count() > 0 ? nonZeroRatings.Average() : 0.0;
+
+                                // Calculate the weighted score for this article   
+                                score += neighbors[u].ArticleRatings[i]; // - avgRating; // * neighbors[u].Score;
                                 count++;
                             }
                         }
                         if (count > 0)
                         {
                             score /= count;
+                            //score += avgUserRating;
                         }
 
-                        suggestions[i].Rating = score;
+                        suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], score));
                     }
                 }
 
@@ -347,6 +456,8 @@ namespace UserBehavior
                     userArticleRatings.Add(new UserArticleRating(userId, articleId, rating));
                 }
             }
+
+            LoadCombinedArticleRatings();
         }
     }
 }
