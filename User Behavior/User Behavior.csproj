@@ -59,6 +59,7 @@
     <Compile Include="Classifiers\IUserComparer.cs" />
     <Compile Include="Classifiers\RootMeanSquareUserComparer.cs" />
     <Compile Include="Classifiers\SimpleCountUserComparer.cs" />
+    <Compile Include="Classifiers\SvdClassifier.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

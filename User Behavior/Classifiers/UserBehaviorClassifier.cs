@@ -125,9 +125,9 @@ namespace UserBehavior
                     madeSuggestions++;
                 }
 
-                foreach (var art in testUsers.Where(x => x.UserID == user))
+                foreach (var art in testUsers.Where(x => x.UserID == user).Select(x => x.ArticleID).Distinct())
                 {
-                    int position = suggestions.FindIndex(x => x.ArticleID == art.ArticleID);
+                    int position = suggestions.FindIndex(x => x.ArticleID == art);
                 }
 
                 foreach (Suggestion s in suggestions)
@@ -250,23 +250,43 @@ namespace UserBehavior
                 //double avgUserRating = nonZero.Count() > 0 ? nonZero.Average() : 0.0;
 
                 var neighbors = GetNearestNeighbors(user, neighborCount);
+                
+                //using (StreamWriter w = new StreamWriter("neighbors-table.csv"))
+                //{
+                //    //w.Write(user.Score + ",");
+                //    for (int a = 0; a < user.ArticleRatings.Length; a++)
+                //    {
+                //        w.Write(user.ArticleRatings[a] + (a != user.ArticleRatings.Length - 1 ? "," : ""));
+                //    }
+                //    w.WriteLine();
 
-                for (int i = 0; i < RATINGS.ArticleIndexToID.Count; i++)
+                //    for (int u = 0; u < neighbors.Count; u++)
+                //    {
+                //        //w.Write(neighbors[u].Score + ",");
+                //        for (int a = 0; a < neighbors[0].ArticleRatings.Length; a++)
+                //        {
+                //            w.Write(neighbors[u].ArticleRatings[a] + (a != neighbors[0].ArticleRatings.Length - 1 ? "," : ""));
+                //        }
+                //        w.WriteLine();
+                //    }
+                //}
+
+                for (int articleIndex = 0; articleIndex < RATINGS.ArticleIndexToID.Count; articleIndex++)
                 {
                     // If the user in question hasn't rated the given article yet
-                    if (user.ArticleRatings[i] == 0)
+                    if (user.ArticleRatings[articleIndex] == 0)
                     {
                         double score = 0.0;
                         int count = 0;
                         for (int u = 0; u < neighbors.Count; u++)
                         {
-                            if (neighbors[u].ArticleRatings[i] != 0)
+                            if (neighbors[u].ArticleRatings[articleIndex] != 0)
                             {
                                 //var nonZeroRatings = neighbors[u].ArticleRatings.Where(x => x != 0);
                                 //double avgRating = nonZeroRatings.Count() > 0 ? nonZeroRatings.Average() : 0.0;
 
                                 // Calculate the weighted score for this article   
-                                score += neighbors[u].ArticleRatings[i]; // - avgRating; // * neighbors[u].Score;
+                                score += neighbors[u].ArticleRatings[articleIndex]; // - avgRating; // * neighbors[u].Score;
                                 count++;
                             }
                         }
@@ -276,7 +296,7 @@ namespace UserBehavior
                             //score += avgUserRating;
                         }
 
-                        suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[i], score));
+                        suggestions.Add(new Suggestion(userId, RATINGS.ArticleIndexToID[articleIndex], score));
                     }
                 }
 
@@ -370,6 +390,7 @@ namespace UserBehavior
             {
                 w.WriteLine(RATINGS.UserArticleRatings.Count);
                 w.WriteLine(RATINGS.UserArticleRatings[0].ArticleRatings.Length);
+                w.WriteLine(RATINGS.NumberOfTags);
 
                 foreach (UserArticleRatings t in RATINGS.UserArticleRatings)
                 {
@@ -417,6 +438,9 @@ namespace UserBehavior
             {
                 long total = long.Parse(r.ReadLine());
                 int features = int.Parse(r.ReadLine());
+
+                int tags = int.Parse(r.ReadLine());
+                RATINGS.NumberOfTags = tags;
 
                 for (long i = 0; i < total; i++)
                 {

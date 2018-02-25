@@ -26,21 +26,23 @@ namespace UserBehavior
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
             //IUserComparer uc = new CoRatedCosineUserComparer();
-            //IUserComparer uc = new CorrelationUserComparer();
-            IUserComparer uc = new SimpleCountUserComparer();
-            UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 5);
+            IUserComparer uc = new CorrelationUserComparer();
+            //IUserComparer uc = new SimpleCountUserComparer();
+            //UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 500);
 
-            //ubc.Train(trainDb);
-            //ubc.Save("model-20180222-l.dat");
-            ubc.Load("model-20180222-l.dat");
+            SvdClassifier ubc = new SvdClassifier();
+
+            ubc.Train(trainDb);
+            ubc.Save("model-20180224-s.dat");
+            //ubc.Load("model-20180224-s.dat");
 
             //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
             //ubc.userArticleRatings = x.GetUserArticleRatings();
             //ubc.Save("model-20180220-h.dat");
 
-            // ScoreResults scores = ubc.Score(testDb);
+            ScoreResults scores = ubc.Score(testDb);
 
-            TestResults results = ubc.Test(testDb, 3000);
+            TestResults results = ubc.Test(testDb, 10);
 
             ubc.GetSuggestions(1, 5);
         }

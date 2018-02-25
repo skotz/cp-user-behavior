@@ -8,11 +8,11 @@ namespace UserBehavior
 {
     class ScoreResults
     {
-        public double Difference { get; set; }
+        public double RootMeanSquareDifference { get; set; }
 
-        public ScoreResults(double diff)
+        public ScoreResults(double rmsd)
         {
-            Difference = diff;
+            RootMeanSquareDifference = rmsd;
         }
     }
 }

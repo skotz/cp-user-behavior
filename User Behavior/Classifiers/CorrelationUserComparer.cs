@@ -18,13 +18,13 @@ namespace UserBehavior
             //double sumSqr1 = userFeaturesOne.Sum(x => Math.Pow((x - avg1), 2.0));
             //double sumSqr2 = userFeaturesTwo.Sum(y => Math.Pow((y - avg2), 2.0));
 
-            //double result = sum1 / Math.Sqrt(sumSqr1 * sumSqr2);
+            //double result1 = sum1 / Math.Sqrt(sumSqr1 * sumSqr2);
 
             double average1 = 0.0;
             double average2 = 0.0;
             int count = 0;
 
-            for (int i =0; i < userFeaturesOne.Length; i++)
+            for (int i = 0; i < userFeaturesOne.Length; i++)
             {
                 if (userFeaturesOne[i] != 0 && userFeaturesTwo[i] != 0)
                 {
@@ -50,7 +50,7 @@ namespace UserBehavior
                     squares2 += Math.Pow(userFeaturesTwo[i] - average2, 2);
                 }
             }
-            
+
             return sum / Math.Sqrt(squares1 * squares2);
         }
     }
