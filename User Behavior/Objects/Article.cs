@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UserBehavior
+namespace UserBehavior.Objects
 {
     [Serializable]
     class Article

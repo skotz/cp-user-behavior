@@ -1,4 +1,4 @@
-﻿namespace UserBehavior
+﻿namespace UserBehavior.Objects
 {
     class Suggestion
     {

@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Objects;
 
-namespace UserBehavior
+namespace UserBehavior.Parsers
 {
     class UserBehaviorDatabaseParser
     {

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserBehavior.Mathematics;
+using UserBehavior.Objects;
+using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {

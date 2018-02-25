@@ -5,7 +5,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Comparers;
 using UserBehavior.Mathematics;
+using UserBehavior.Objects;
+using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {

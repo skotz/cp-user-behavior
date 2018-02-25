@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UserBehavior
+namespace UserBehavior.Objects
 {
     class UserArticleRating
     {

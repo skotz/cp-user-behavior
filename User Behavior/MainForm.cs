@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UserBehavior.Comparers;
+using UserBehavior.Objects;
+using UserBehavior.Parsers;
 using UserBehavior.Recommenders;
 
 namespace UserBehavior

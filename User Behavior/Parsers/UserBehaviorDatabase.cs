@@ -5,8 +5,10 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Objects;
+using UserBehavior.Objects.Objects;
 
-namespace UserBehavior
+namespace UserBehavior.Parsers
 {
     [Serializable]
     class UserBehaviorDatabase

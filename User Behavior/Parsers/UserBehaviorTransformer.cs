@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Objects;
+using UserBehavior.Objects.Objects;
 
-namespace UserBehavior
+namespace UserBehavior.Parsers
 {
     class UserBehaviorTransformer
     {

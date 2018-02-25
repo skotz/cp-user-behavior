@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UserBehavior
+namespace UserBehavior.Objects
 {
     [Serializable]
     class UserAction

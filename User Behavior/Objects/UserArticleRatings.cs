@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UserBehavior
+namespace UserBehavior.Objects
 {
     class UserArticleRatings
     {
