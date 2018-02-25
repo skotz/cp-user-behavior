@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UserBehavior.Classifiers;
 
 namespace UserBehavior
 {
@@ -28,21 +29,25 @@ namespace UserBehavior
             //IUserComparer uc = new SimpleCountUserComparer();
             UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 20);
 
-            //SvdClassifier ubc = new SvdClassifier();
+            SvdClassifier sc = new SvdClassifier();
 
-            ubc.Train(sp.TrainingDB);
-            ubc.Save("model-20180225-t.dat");
-            //ubc.Load("model-20180225-t.dat");
+            HybridClassifier hc = new HybridClassifier();
+            hc.Add(ubc);
+            hc.Add(sc);
+
+            hc.Train(sp.TrainingDB);
+            hc.Save("model-20180225-u.dat");
+            //hc.Load("model-20180225-u.dat");
 
             //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
             //ubc.userArticleRatings = x.GetUserArticleRatings();
             //ubc.Save("model-20180220-h.dat");
 
-            // ScoreResults scores = ubc.Score(sp.TestingDB);
+            // ScoreResults scores = hc.Score(sp.TestingDB);
 
-            TestResults results = ubc.Test(sp.TestingDB, 100);
+            TestResults results = hc.Test(sp.TestingDB, 100);
 
-            ubc.GetSuggestions(1, 5);
+            hc.GetSuggestions(1, 5);
         }
 
         private void btnParseDatabase_Click(object sender, EventArgs e)

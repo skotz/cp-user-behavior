@@ -56,6 +56,7 @@
     <Compile Include="Classifiers\CoRatedCosineUserComparer.cs" />
     <Compile Include="Classifiers\CorrelationUserComparer.cs" />
     <Compile Include="Classifiers\CosineUserComparer.cs" />
+    <Compile Include="Classifiers\HybridClassifier.cs" />
     <Compile Include="Classifiers\IClassifier.cs" />
     <Compile Include="Classifiers\IUserComparer.cs" />
     <Compile Include="Classifiers\RootMeanSquareUserComparer.cs" />
