@@ -83,6 +83,7 @@
     <Compile Include="Abstractions\ISplitter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Recommenders\ItemCollaborativeFilterRecommender.cs" />
     <Compile Include="Recommenders\UserCollaborativeFilterRecommender.cs" />
     <Compile Include="Parsers\UserBehaviorDatabase.cs" />
     <Compile Include="Parsers\UserBehaviorDatabaseParser.cs" />

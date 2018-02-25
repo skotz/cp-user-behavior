@@ -13,7 +13,7 @@ namespace UserBehavior.Recommenders
 {
     class MatrixFactorizationRecommender : IRecommender
     {
-        private UserArticleRatingsTable RATINGS;
+        private UserArticleRatingsTable ratings;
         private SvdResult svd;
 
         private int numUsers;
@@ -36,31 +36,31 @@ namespace UserBehavior.Recommenders
         public void Train(UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            RATINGS = ubt.GetUserArticleRatingsTable();
+            ratings = ubt.GetUserArticleRatingsTable();
 
             SingularValueDecomposition factorizer = new SingularValueDecomposition(numFeatures, learningIterations);
-            svd = factorizer.FactorizeMatrix(RATINGS);
+            svd = factorizer.FactorizeMatrix(ratings);
         }
         
         public double GetRating(int userId, int articleId)
         {
-            int userIndex = RATINGS.UserIndexToID.IndexOf(userId);
-            int articleIndex = RATINGS.ArticleIndexToID.IndexOf(articleId);
+            int userIndex = ratings.UserIndexToID.IndexOf(userId);
+            int articleIndex = ratings.ArticleIndexToID.IndexOf(articleId);
             
             return svd.AverageGlobalRating + svd.UserBiases[userIndex] + svd.ArticleBiases[articleIndex] + Matrix.GetDotProduct(svd.UserFeatures[userIndex], svd.ArticleFeatures[articleIndex]);
         }
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
-            UserArticleRatings user = RATINGS.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
+            UserArticleRatings user = ratings.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
             List<Suggestion> suggestions = new List<Suggestion>();
-            int userIndex = RATINGS.UserIndexToID.IndexOf(userId);
+            int userIndex = ratings.UserIndexToID.IndexOf(userId);
 
             if (user != null)
             {
-                for (int articleIndex = 0; articleIndex < RATINGS.ArticleIndexToID.Count; articleIndex++)
+                for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
                 {
-                    int articleId = RATINGS.ArticleIndexToID[articleIndex];
+                    int articleId = ratings.ArticleIndexToID[articleIndex];
 
                     // If the user in question hasn't rated the given article yet
                     if (user.ArticleRatings[articleIndex] == 0)
@@ -115,7 +115,7 @@ namespace UserBehavior.Recommenders
                     }
                 }
 
-                foreach (UserArticleRatings t in RATINGS.UserArticleRatings)
+                foreach (UserArticleRatings t in ratings.UserArticleRatings)
                 {
                     w.WriteLine(t.UserID);
 
@@ -125,12 +125,12 @@ namespace UserBehavior.Recommenders
                     }
                 }
                 
-                foreach (int i in RATINGS.UserIndexToID)
+                foreach (int i in ratings.UserIndexToID)
                 {
                     w.WriteLine(i);
                 }
                 
-                foreach (int i in RATINGS.ArticleIndexToID)
+                foreach (int i in ratings.ArticleIndexToID)
                 {
                     w.WriteLine(i);
                 }
@@ -139,7 +139,7 @@ namespace UserBehavior.Recommenders
 
         public void Load(string file)
         {
-            RATINGS = new UserArticleRatingsTable();
+            ratings = new UserArticleRatingsTable();
             
             using (FileStream fs = new FileStream(file, FileMode.Open))
             using (GZipStream zip = new GZipStream(fs, CompressionMode.Decompress))
@@ -197,17 +197,17 @@ namespace UserBehavior.Recommenders
                         uat.ArticleRatings[x] = double.Parse(r.ReadLine());
                     }
 
-                    RATINGS.UserArticleRatings.Add(uat);
+                    ratings.UserArticleRatings.Add(uat);
                 }
 
                 for (int i = 0; i < numUsers; i++)
                 {
-                    RATINGS.UserIndexToID.Add(int.Parse(r.ReadLine()));
+                    ratings.UserIndexToID.Add(int.Parse(r.ReadLine()));
                 }
                 
                 for (int i = 0; i < numArticles; i++)
                 {
-                    RATINGS.ArticleIndexToID.Add(int.Parse(r.ReadLine()));
+                    ratings.ArticleIndexToID.Add(int.Parse(r.ReadLine()));
                 }
             }
         }

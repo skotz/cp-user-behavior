@@ -37,10 +37,10 @@ namespace UserBehavior.Mathematics
             learningIterations = iterations;
         }
 
-        private void Initialize(UserArticleRatingsTable RATINGS)
+        private void Initialize(UserArticleRatingsTable ratings)
         {
-            numUsers = RATINGS.UserArticleRatings.Count;
-            numArticles = RATINGS.UserArticleRatings[0].ArticleRatings.Length;
+            numUsers = ratings.UserArticleRatings.Count;
+            numArticles = ratings.UserArticleRatings[0].ArticleRatings.Length;
 
             Random rand = new Random();
 
@@ -70,15 +70,15 @@ namespace UserBehavior.Mathematics
             articleBiases = new double[numArticles];
         }
 
-        public SvdResult FactorizeMatrix(UserArticleRatingsTable RATINGS)
+        public SvdResult FactorizeMatrix(UserArticleRatingsTable ratings)
         {
-            Initialize(RATINGS);
+            Initialize(ratings);
 
             double rmse;
             int count;
             List<double> rmseAll = new List<double>();
 
-            averageGlobalRating = GetAverageRating(RATINGS);
+            averageGlobalRating = GetAverageRating(ratings);
 
             for (int i = 0; i < learningIterations; i++)
             {
@@ -89,11 +89,11 @@ namespace UserBehavior.Mathematics
                 {
                     for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                     {
-                        if (RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
+                        if (ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
                         {
                             double estimatedRating = averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + Matrix.GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
 
-                            double error = RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] - estimatedRating;
+                            double error = ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] - estimatedRating;
 
                             rmse += Math.Pow(error, 2);
                             count++;
@@ -132,7 +132,7 @@ namespace UserBehavior.Mathematics
         /// <summary>
         /// Get the average rating of non-zero values across the entire user-article matrix
         /// </summary>
-        private double GetAverageRating(UserArticleRatingsTable RATINGS)
+        private double GetAverageRating(UserArticleRatingsTable ratings)
         {
             double sum = 0.0;
             int count = 0;
@@ -142,9 +142,9 @@ namespace UserBehavior.Mathematics
                 for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                 {
                     // If the given user rated the given item, add it to our average
-                    if (RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
+                    if (ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
                     {
-                        sum += RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
+                        sum += ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
                         count++;
                     }
                 }
