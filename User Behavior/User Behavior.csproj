@@ -53,8 +53,8 @@
     <Compile Include="Comparers\CorrelationUserComparer.cs" />
     <Compile Include="Comparers\CosineUserComparer.cs" />
     <Compile Include="Recommenders\HybridRecommender.cs" />
-    <Compile Include="Recommenders\IClassifier.cs" />
-    <Compile Include="Comparers\IUserComparer.cs" />
+    <Compile Include="Abstractions\IClassifier.cs" />
+    <Compile Include="Abstractions\IUserComparer.cs" />
     <Compile Include="Comparers\RootMeanSquareUserComparer.cs" />
     <Compile Include="Comparers\SimpleCountUserComparer.cs" />
     <Compile Include="Recommenders\MatrixFactorizationRecommender.cs" />
@@ -80,7 +80,7 @@
     <Compile Include="Objects\UserArticleRating.cs" />
     <Compile Include="Objects\UserArticleRatingsTable.cs" />
     <Compile Include="Parsers\DaySplitter.cs" />
-    <Compile Include="Parsers\ISplitter.cs" />
+    <Compile Include="Abstractions\ISplitter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Recommenders\UserCollaborativeFilterRecommender.cs" />
