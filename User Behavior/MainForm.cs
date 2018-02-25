@@ -27,7 +27,7 @@ namespace UserBehavior
             //IUserComparer uc = new CoRatedCosineUserComparer();
             IUserComparer uc = new CorrelationUserComparer();
             //IUserComparer uc = new SimpleCountUserComparer();
-            UserBehaviorClassifier ubc = new UserBehaviorClassifier(uc, 20);
+            UserCollaborativeFilterRecommender ubc = new UserCollaborativeFilterRecommender(uc, 20);
 
             SvdClassifier sc = new SvdClassifier();
 

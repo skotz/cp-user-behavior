@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UserBehavior.Mathematics;
 
-namespace UserBehavior
+namespace UserBehavior.Recommenders
 {
-    class SvdClassifier : IClassifier
+    class MatrixFactorizationRecommender : IRecommender
     {
         private UserArticleRatingsTable RATINGS;
         private SvdResult svd;
@@ -20,12 +20,12 @@ namespace UserBehavior
         private int numFeatures;
         private int learningIterations;        
 
-        public SvdClassifier()
+        public MatrixFactorizationRecommender()
             : this(20)
         {
         }
 
-        public SvdClassifier(int features)
+        public MatrixFactorizationRecommender(int features)
         {
             numFeatures = features;
             learningIterations = 100;

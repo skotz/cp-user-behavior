@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UserBehavior.Mathematics;
 
-namespace UserBehavior
+namespace UserBehavior.Recommenders
 {
-    class UserBehaviorClassifier : IClassifier
+    class UserCollaborativeFilterRecommender : IRecommender
     {
         private IUserComparer comparer;
         private UserArticleRatingsTable RATINGS;
@@ -18,7 +18,7 @@ namespace UserBehavior
         private int neighborCount;
         private int latentUserFeatureCount;
 
-        public UserBehaviorClassifier(IUserComparer userComparer, int knn)
+        public UserCollaborativeFilterRecommender(IUserComparer userComparer, int knn)
         {
             comparer = userComparer;
             neighborCount = knn;

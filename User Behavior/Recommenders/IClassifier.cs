@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UserBehavior
+namespace UserBehavior.Recommenders
 {
-    interface IClassifier
+    interface IRecommender
     {
         void Train(UserBehaviorDatabase db);
         

@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Classifiers
 {
-    class HybridClassifier : IClassifier
+    class HybridClassifier : IRecommender
     {
-        private List<IClassifier> classifiers;
+        private List<IRecommender> classifiers;
 
         private int internalSuggestions = 100;
 
         public HybridClassifier()
         {
-            classifiers = new List<IClassifier>();
+            classifiers = new List<IRecommender>();
         }
 
-        public void Add(IClassifier classifier)
+        public void Add(IRecommender classifier)
         {
             classifiers.Add(classifier);
         }
 
         public void Train(UserBehaviorDatabase db)
         {
-            foreach (IClassifier classifier in classifiers)
+            foreach (IRecommender classifier in classifiers)
             {
                 classifier.Train(db);
             }
@@ -38,7 +38,7 @@ namespace UserBehavior.Classifiers
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
             List<List<Suggestion>> suggestions = new List<List<Suggestion>>();
-            foreach (IClassifier classifier in classifiers)
+            foreach (IRecommender classifier in classifiers)
             {
                 suggestions.Add(classifier.GetSuggestions(userId, internalSuggestions));
             }
