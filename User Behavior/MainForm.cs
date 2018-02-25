@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UserBehavior.Classifiers;
+using UserBehavior.Recommenders;
 
 namespace UserBehavior
 {
@@ -29,9 +29,9 @@ namespace UserBehavior
             //IUserComparer uc = new SimpleCountUserComparer();
             UserCollaborativeFilterRecommender ubc = new UserCollaborativeFilterRecommender(uc, 20);
 
-            SvdClassifier sc = new SvdClassifier();
+            MatrixFactorizationRecommender sc = new MatrixFactorizationRecommender();
 
-            HybridClassifier hc = new HybridClassifier();
+            HybridRecommender hc = new HybridRecommender();
             hc.Add(ubc);
             hc.Add(sc);
 

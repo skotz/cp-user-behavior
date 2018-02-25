@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UserBehavior.Classifiers
+namespace UserBehavior.Recommenders
 {
-    class HybridClassifier : IRecommender
+    class HybridRecommender : IRecommender
     {
         private List<IRecommender> classifiers;
 
         private int internalSuggestions = 100;
 
-        public HybridClassifier()
+        public HybridRecommender()
         {
             classifiers = new List<IRecommender>();
         }
