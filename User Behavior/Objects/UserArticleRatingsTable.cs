@@ -23,6 +23,22 @@ namespace UserBehavior
             UserIndexToID = new List<int>();
             ArticleIndexToID = new List<int>();
         }
+        
+        public void AppendUserFeatures(double[][] userFeatures)
+        {
+            for (int i = 0; i < UserIndexToID.Count; i++)
+            {
+                UserArticleRatings[i].AppendRatings(userFeatures[i]);
+            }
+        }
+
+        //public void AppendArticleFeatures(double[][] articleFeatures)
+        //{
+        //    for (int i = 0; i < ArticleIndexToID.Count; i++)
+        //    {
+        //        //UserArticleRatings.Add(new UserArticleRatings(-1, ));
+        //    }
+        //}
 
         public Bitmap GenerateVisual()
         {

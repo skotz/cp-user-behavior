@@ -8,27 +8,22 @@ namespace UserBehavior
 {
     class DaySplitter : ISplitter
     {
-        private UserBehaviorDatabase database;
-        private int splitDay;
+        public UserBehaviorDatabase TrainingDB { get; private set; }
+
+        public UserBehaviorDatabase TestingDB { get; private set; }
 
         public DaySplitter(UserBehaviorDatabase db, int daysForTesting)
         {
-            database = db;
-            splitDay = db.UserActions.Max(x => x.Day) - daysForTesting;
-        }
+            int splitDay = db.UserActions.Max(x => x.Day) - daysForTesting;
 
-        public UserBehaviorDatabase GetTrainingDatabase()
-        {
-            UserBehaviorDatabase db = database.Clone();
-            db.UserActions.RemoveAll(x => x.Day > splitDay);
-            return db;
-        }
+            TrainingDB = db.Clone();
+            TrainingDB.UserActions.RemoveAll(x => x.Day > splitDay);
 
-        public UserBehaviorDatabase GetTestingDatabase()
-        {
-            UserBehaviorDatabase db = database.Clone();
-            db.UserActions.RemoveAll(x => x.Day <= splitDay);
-            return db;
+            TestingDB = db.Clone();
+            TestingDB.UserActions.RemoveAll(x => x.Day <= splitDay);
+
+            // Remove any user-article pairs from the testing set that are also in the training set
+            TestingDB.UserActions.RemoveAll(test => TrainingDB.UserActions.Any(train => train.UserID == test.UserID && train.ArticleID == test.ArticleID));
         }
     }
 }

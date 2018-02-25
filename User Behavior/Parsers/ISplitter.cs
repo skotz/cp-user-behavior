@@ -8,8 +8,8 @@ namespace UserBehavior
 {
     interface ISplitter
     {
-        UserBehaviorDatabase GetTrainingDatabase();
+        UserBehaviorDatabase TrainingDB { get; }
 
-        UserBehaviorDatabase GetTestingDatabase();
+        UserBehaviorDatabase TestingDB { get; }
     }
 }

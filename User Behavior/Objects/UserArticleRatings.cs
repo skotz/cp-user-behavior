@@ -1,4 +1,7 @@
-﻿namespace UserBehavior
+﻿using System;
+using System.Collections.Generic;
+
+namespace UserBehavior
 {
     class UserArticleRatings
     {
@@ -14,28 +17,14 @@
             ArticleRatings = new double[articlesCount];
         }
 
-        public static UserArticleRatings operator +(UserArticleRatings uar1, UserArticleRatings uar2)
+        public void AppendRatings(double[] ratings)
         {
-            UserArticleRatings uar = new UserArticleRatings(0, uar1.ArticleRatings.Length);
+            List<double> allRatings = new List<double>();
 
-            for (int i = 0; i < uar.ArticleRatings.Length; i++)
-            {
-                uar.ArticleRatings[i] = uar1.ArticleRatings[i] + uar2.ArticleRatings[i];
-            }
+            allRatings.AddRange(ArticleRatings);
+            allRatings.AddRange(ratings);
 
-            return uar;
-        }
-
-        public static UserArticleRatings operator /(UserArticleRatings uar1, double value)
-        {
-            UserArticleRatings uar = new UserArticleRatings(0, uar1.ArticleRatings.Length);
-
-            for (int i = 0; i < uar.ArticleRatings.Length; i++)
-            {
-                uar.ArticleRatings[i] = uar1.ArticleRatings[i] / value;
-            }
-
-            return uar;
+            ArticleRatings = allRatings.ToArray();
         }
     }
 }

@@ -5,188 +5,47 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Mathematics;
 
 namespace UserBehavior
 {
     class SvdClassifier : IClassifier
     {
         private UserArticleRatingsTable RATINGS;
+        private SvdResult svd;
 
         private int numUsers;
         private int numArticles;
-        private int numFeatures = 100;
 
-        private double averageGlobalRating;
+        private int numFeatures;
+        private int learningIterations;        
 
-        private double learningRate = 0.005;
-        private double regularizationTerm = 0.02;
+        public SvdClassifier()
+            : this(20)
+        {
+        }
 
-        private double[] userBiases;
-        private double[] articleBiases;
-        private double[][] userFeatures;
-        private double[][] articleFeatures;
+        public SvdClassifier(int features)
+        {
+            numFeatures = features;
+            learningIterations = 100;
+        }
 
         public void Train(UserBehaviorDatabase db)
         {
-            InitializeRatings(db);
-            
-            double rmse;
-            int count;
-            List<double> rmseAll = new List<double>();
-
-            averageGlobalRating = GetAverageRating();
-            
-            for (int i = 0; i < 100; i++)
-            {
-                rmse = 0.0;
-                count = 0;
-
-                for (int userIndex = 0; userIndex < numUsers; userIndex++)
-                {
-                    for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
-                    {
-                        if (RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
-                        {
-                            double estimatedRating = averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
-                            
-                            double error = RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] - estimatedRating;
-                            
-                            rmse += Math.Pow(error, 2);
-                            count++;
-                            
-                            averageGlobalRating += learningRate * (error - regularizationTerm * averageGlobalRating);
-                            userBiases[userIndex] += learningRate * (error - regularizationTerm * userBiases[userIndex]);
-                            articleBiases[articleIndex] += learningRate * (error - regularizationTerm * articleBiases[articleIndex]);
-                            
-                            for (int featureIndex = 0; featureIndex < numFeatures; featureIndex++)
-                            {
-                                userFeatures[userIndex][featureIndex] += learningRate * (error * articleFeatures[articleIndex][featureIndex] - regularizationTerm * userFeatures[userIndex][featureIndex]);
-                                articleFeatures[articleIndex][featureIndex] += learningRate * (error * userFeatures[userIndex][featureIndex] - regularizationTerm * articleFeatures[articleIndex][featureIndex]);
-                            }
-                        }
-                    }
-                }
-                
-                rmse = Math.Sqrt(rmse / count);
-                rmseAll.Add(rmse);
-                
-                learningRate *= 0.99;
-            }
-
-            using (StreamWriter w = new StreamWriter("rmse.csv"))
-            {
-                w.WriteLine("epoc,rmse");
-                for (int i = 0; i < rmseAll.Count; i++)
-                {
-                    w.WriteLine((i + 1) + "," + rmseAll[i]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get the average rating across the entire user-article matrix
-        /// </summary>
-        private double GetAverageRating()
-        {
-            double sum = 0.0;
-            int count = 0;
-            
-            for (int userIndex = 0; userIndex < numUsers; userIndex++)
-            {
-                for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
-                {
-                    // If the given user rated the given item, add it to our average
-                    if (RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
-                    {
-                        sum += RATINGS.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
-                        count++;
-                    }
-                }
-            }
-
-            return sum / count;
-        }
-
-        private double GetDotProduct(double[] matrixOne, double[] matrixTwo)
-        {
-            return matrixOne.Zip(matrixTwo, (a, b) => a * b).Sum();
-        }
-
-        private void InitializeRatings(UserBehaviorDatabase db)
-        {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
             RATINGS = ubt.GetUserArticleRatingsTable();
-            numUsers = RATINGS.UserArticleRatings.Count;
-            numArticles = RATINGS.UserArticleRatings[0].ArticleRatings.Length;
 
-            Random rand = new Random();
-
-            userFeatures = new double[numUsers][];
-            for (int userIndex = 0; userIndex < numUsers; userIndex++)
-            {
-                userFeatures[userIndex] = new double[numFeatures];
-
-                for (int featureIndex = 0; featureIndex < numFeatures; featureIndex++)
-                {
-                    userFeatures[userIndex][featureIndex] = rand.NextDouble();
-                }
-            }
-
-            articleFeatures = new double[numArticles][];
-            for (int articleIndex = 0; articleIndex < numUsers; articleIndex++)
-            {
-                articleFeatures[articleIndex] = new double[numFeatures];
-
-                for (int featureIndex = 0; featureIndex < numFeatures; featureIndex++)
-                {
-                    articleFeatures[articleIndex][featureIndex] = rand.NextDouble();
-                }
-            }
-
-            userBiases = new double[numUsers];
-            articleBiases = new double[numArticles];
+            SingularValueDecomposition factorizer = new SingularValueDecomposition(numFeatures, learningIterations);
+            svd = factorizer.FactorizeMatrix(RATINGS);
         }
-
+        
         public double GetRating(int userId, int articleId)
         {
             int userIndex = RATINGS.UserIndexToID.IndexOf(userId);
             int articleIndex = RATINGS.ArticleIndexToID.IndexOf(articleId);
             
-            return averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
-        }
-
-        public ScoreResults Score(UserBehaviorDatabase db)
-        {
-            UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            UserArticleRatingsTable actualRatings = ubt.GetUserArticleRatingsTable();
-
-            var distinctUserArticlePairs = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).ToList();
-
-            double score = 0.0;
-            int count = 0;
-
-            foreach (var userArticle in distinctUserArticlePairs)
-            {
-                int userIndex = actualRatings.UserIndexToID.IndexOf(userArticle.Key.UserID);
-                int articleIndex = actualRatings.ArticleIndexToID.IndexOf(userArticle.Key.ArticleID);
-
-                double actualRating = actualRatings.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
-
-                if (actualRating != 0)
-                {
-                    double predictedRating = GetRating(userArticle.Key.UserID, userArticle.Key.ArticleID);
-
-                    score += Math.Pow(predictedRating - actualRating, 2);
-                    count++;
-                }
-            }
-
-            if (count > 0)
-            {
-                score = Math.Sqrt(score / count);
-            }
-
-            return new ScoreResults(score);
+            return svd.AverageGlobalRating + svd.UserBiases[userIndex] + svd.ArticleBiases[articleIndex] + Matrix.GetDotProduct(svd.UserFeatures[userIndex], svd.ArticleFeatures[articleIndex]);
         }
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
@@ -215,50 +74,7 @@ namespace UserBehavior
 
             return suggestions.Take(numSuggestions).ToList();
         }
-
-        public TestResults Test(UserBehaviorDatabase db, int numSuggestions)
-        {
-            int correct = 0;
-            int madeSuggestions = 0;
-
-            // Get a list of users in this database who interacted with an article for the first time
-            List<UserAction> testUsers = db.UserActions.Where(x => !RATINGS.UserArticleRatings.Any(u => u.UserID == x.UserID && u.ArticleRatings[RATINGS.ArticleIndexToID.IndexOf(x.ArticleID)] != 0)).ToList();
-            List<int> distinctUsers = testUsers.Select(x => x.UserID).Distinct().ToList();
-
-            //UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            //UserArticleRatingsTable TEST = ubt.GetUserArticleRatingsTable();
-            //double averageArticlesPerUserTrain = RATINGS.UserArticleRatings.Select(u => u.ArticleRatings.Count(a => a != 0)).Average();
-            //double averageArticlesPerUserTest = TEST.UserArticleRatings.Select(u => u.ArticleRatings.Count(a => a != 0)).Average();
-
-            // Now get suggestions for each of these users
-            foreach (int user in distinctUsers)
-            {
-                List<Suggestion> suggestions = GetSuggestions(user, numSuggestions);
-
-                if (suggestions.Count > 0)
-                {
-                    madeSuggestions++;
-                }
-
-                foreach (var art in testUsers.Where(x => x.UserID == user).Select(x => x.ArticleID).Distinct())
-                {
-                    int position = suggestions.FindIndex(x => x.ArticleID == art);
-                }
-
-                foreach (Suggestion s in suggestions)
-                {
-                    // If one of the top N suggestions is what the user ended up reading, then we're golden
-                    if (testUsers.Any(x => x.UserID == user && x.ArticleID == s.ArticleID))
-                    {
-                        correct++;
-                        break;
-                    }
-                }
-            }
-
-            return new TestResults(distinctUsers.Count, madeSuggestions, correct);
-        }
-
+        
         public void Save(string file)
         {
             using (FileStream fs = new FileStream(file, FileMode.Create))
@@ -269,23 +85,23 @@ namespace UserBehavior
                 w.WriteLine(numArticles);
                 w.WriteLine(numFeatures);
 
-                w.WriteLine(averageGlobalRating);
+                w.WriteLine(svd.AverageGlobalRating);
 
                 for (int userIndex = 0; userIndex < numUsers; userIndex++)
                 {
-                    w.WriteLine(userBiases[userIndex]);
+                    w.WriteLine(svd.UserBiases[userIndex]);
                 }
 
                 for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                 {
-                    w.WriteLine(articleBiases[articleIndex]);
+                    w.WriteLine(svd.ArticleBiases[articleIndex]);
                 }
 
                 for (int userIndex = 0; userIndex < numUsers; userIndex++)
                 {
                     for (int featureIndex = 0; featureIndex < numFeatures; featureIndex++)
                     {
-                        w.WriteLine(userFeatures[userIndex][featureIndex]);
+                        w.WriteLine(svd.UserFeatures[userIndex][featureIndex]);
                     }
                 }
                 
@@ -293,7 +109,7 @@ namespace UserBehavior
                 {
                     for (int featureIndex = 0; featureIndex < numFeatures; featureIndex++)
                     {
-                        w.WriteLine(articleFeatures[articleIndex][featureIndex]);
+                        w.WriteLine(svd.ArticleFeatures[articleIndex][featureIndex]);
                     }
                 }
 
@@ -331,21 +147,21 @@ namespace UserBehavior
                 numArticles = int.Parse(r.ReadLine());
                 numFeatures = int.Parse(r.ReadLine());
 
-                averageGlobalRating = double.Parse(r.ReadLine());
+                double averageGlobalRating = double.Parse(r.ReadLine());
 
-                userBiases = new double[numUsers];
+                double[] userBiases = new double[numUsers];
                 for (int userIndex = 0; userIndex < numUsers; userIndex++)
                 {
                     userBiases[userIndex] = double.Parse(r.ReadLine());
                 }
 
-                articleBiases = new double[numArticles];
+                double[] articleBiases = new double[numArticles];
                 for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                 {
                     articleBiases[articleIndex] = double.Parse(r.ReadLine());
                 }
 
-                userFeatures = new double[numUsers][];
+                double[][] userFeatures = new double[numUsers][];
                 for (int userIndex = 0; userIndex < numUsers; userIndex++)
                 {
                     userFeatures[userIndex] = new double[numFeatures];
@@ -356,7 +172,7 @@ namespace UserBehavior
                     }
                 }
 
-                articleFeatures = new double[numArticles][];
+                double[][] articleFeatures = new double[numArticles][];
                 for (int articleIndex = 0; articleIndex < numUsers; articleIndex++)
                 {
                     articleFeatures[articleIndex] = new double[numFeatures];
@@ -366,6 +182,8 @@ namespace UserBehavior
                         articleFeatures[articleIndex][featureIndex] = double.Parse(r.ReadLine());
                     }
                 }
+
+                svd = new SvdResult(averageGlobalRating, userBiases, articleBiases, userFeatures, articleFeatures);
 
                 for (int i = 0; i < numUsers; i++)
                 {

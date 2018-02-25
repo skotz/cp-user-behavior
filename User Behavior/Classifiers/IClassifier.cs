@@ -9,11 +9,7 @@ namespace UserBehavior
     interface IClassifier
     {
         void Train(UserBehaviorDatabase db);
-
-        TestResults Test(UserBehaviorDatabase db, int numSuggestions);
-
-        ScoreResults Score(UserBehaviorDatabase db);
-
+        
         List<Suggestion> GetSuggestions(int userId, int numSuggestions);
 
         double GetRating(int userId, int articleId);

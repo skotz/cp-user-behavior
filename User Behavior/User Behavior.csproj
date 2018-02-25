@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classifiers\ClassifierExtensions.cs" />
     <Compile Include="Classifiers\CoRatedCosineUserComparer.cs" />
     <Compile Include="Classifiers\CorrelationUserComparer.cs" />
     <Compile Include="Classifiers\CosineUserComparer.cs" />
@@ -66,6 +67,9 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mathematics\Matrix.cs" />
+    <Compile Include="Mathematics\SingularValueDecomposition.cs" />
+    <Compile Include="Mathematics\SvdResult.cs" />
     <Compile Include="Objects\Article.cs" />
     <Compile Include="Objects\ArticleTag.cs" />
     <Compile Include="Objects\ScoreResults.cs" />
