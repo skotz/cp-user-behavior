@@ -8,14 +8,20 @@ namespace UserBehavior.Objects
 {
     class TestResults
     {
-        public int Samples { get; set; }
-        
-        public int Correct { get; set; }
+        public int TotalUsers { get; set; }
 
-        public TestResults(int samples, int correct)
+        public int TotalArticles { get; set; }
+
+        public int ArticlesSolved { get; set; }
+
+        public int UsersSolved { get; set; }
+
+        public TestResults(int totalUsers, int usersSolved, int totalArticles, int articlesSolved)
         {
-            Samples = samples;
-            Correct = correct;
+            TotalUsers = totalUsers;
+            ArticlesSolved = articlesSolved;
+            UsersSolved = usersSolved;
+            TotalArticles = totalArticles;
         }
     }
 }

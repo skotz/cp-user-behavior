@@ -20,11 +20,11 @@ namespace UserBehavior
         public MainForm()
         {
             InitializeComponent();
-            
+
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
             UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
 
-            ISplitter sp = new DaySplitter(db, 1);
+            ISplitter sp = new DaySplitter(db, 3);
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
             //IUserComparer uc = new CoRatedCosineUserComparer();
@@ -34,8 +34,8 @@ namespace UserBehavior
             UserCollaborativeFilterRecommender ubc = new UserCollaborativeFilterRecommender(uc, 20);
 
             MatrixFactorizationRecommender sc = new MatrixFactorizationRecommender();
-            
-            IRecommender icf = new ItemCollaborativeFilterRecommender(uc, 20);
+
+            ItemCollaborativeFilterRecommender icf = new ItemCollaborativeFilterRecommender(uc, 20);
 
             HybridRecommender hc = new HybridRecommender();
             hc.Add(ubc);
@@ -43,16 +43,40 @@ namespace UserBehavior
             hc.Add(icf);
 
             hc.Train(sp.TrainingDB);
-            hc.Save("model-20180225-u.dat");
+
+            //hc.Save("model-20180225-u.dat");
             //hc.Load("model-20180225-u.dat");
 
-            //UserBehaviorTransformer x = new UserBehaviorTransformer(trainDb);
-            //ubc.userArticleRatings = x.GetUserArticleRatings();
-            //ubc.Save("model-20180220-h.dat");
-
             ScoreResults scores = hc.Score(sp.TestingDB);
-
             TestResults results = hc.Test(sp.TestingDB, 30);
+
+            // Individual tests
+
+            //ubc = new UserCollaborativeFilterRecommender(uc, 20);
+            //sc = new MatrixFactorizationRecommender();
+            //icf = new ItemCollaborativeFilterRecommender(uc, 20);
+
+            //ubc.Train(sp.TrainingDB);
+            //ScoreResults scores2 = ubc.Score(sp.TestingDB);
+            //TestResults results2 = ubc.Test(sp.TestingDB, 30);
+
+            //sc.Train(sp.TrainingDB);
+            //ScoreResults scores3 = sc.Score(sp.TestingDB);
+            //TestResults results3 = sc.Test(sp.TestingDB, 30);
+
+            //icf.Train(sp.TrainingDB);
+            //ScoreResults scores4 = icf.Score(sp.TestingDB);
+            //TestResults results4 = icf.Test(sp.TestingDB, 30);
+
+            //using (StreamWriter w = new StreamWriter("results.csv"))
+            //{
+            //    w.WriteLine("model,rmse,users,user-solved,articles,articles-solved");
+            //    w.WriteLine("UCF," + scores2.RootMeanSquareDifference + "," + results2.TotalUsers + "," + results2.UsersSolved + "," + results2.TotalArticles + "," + results2.ArticlesSolved);
+            //    w.WriteLine("SVD," + scores3.RootMeanSquareDifference + "," + results3.TotalUsers + "," + results3.UsersSolved + "," + results3.TotalArticles + "," + results3.ArticlesSolved);
+            //    w.WriteLine("ICF," + scores4.RootMeanSquareDifference + "," + results4.TotalUsers + "," + results4.UsersSolved + "," + results4.TotalArticles + "," + results4.ArticlesSolved);
+            //    w.WriteLine("HR," + scores.RootMeanSquareDifference + "," + results.TotalUsers + "," + results.UsersSolved + "," + results.TotalArticles + "," + results.ArticlesSolved);
+            //}
+
 
             hc.GetSuggestions(1, 5);
         }

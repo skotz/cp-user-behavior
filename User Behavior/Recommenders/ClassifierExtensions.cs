@@ -12,28 +12,37 @@ namespace UserBehavior.Recommenders
     {
         public static TestResults Test(this IRecommender classifier, UserBehaviorDatabase db, int numSuggestions)
         {
-            int correct = 0;
+            int correctArticles = 0;
+            int correctUsers = 0;
 
             // Get a list of users in this database who interacted with an article for the first time
             List<int> distinctUsers = db.UserActions.Select(x => x.UserID).Distinct().ToList();
             
+            int distinctUserArticles = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).Count();
+
             // Now get suggestions for each of these users
             foreach (int user in distinctUsers)
             {
                 List<Suggestion> suggestions = classifier.GetSuggestions(user, numSuggestions);
+                bool foundOne = false;
                 
                 foreach (Suggestion s in suggestions)
                 {
                     // If one of the top N suggestions is what the user ended up reading, then we're golden
                     if (db.UserActions.Any(x => x.UserID == user && x.ArticleID == s.ArticleID))
                     {
-                        correct++;
-                        break;
+                        correctArticles++;
+
+                        if (!foundOne)
+                        {
+                            correctUsers++;
+                            foundOne = true;
+                        }
                     }
                 }
             }
 
-            return new TestResults(distinctUsers.Count, correct);
+            return new TestResults(distinctUsers.Count, correctUsers, distinctUserArticles, correctArticles);
         }
 
         public static ScoreResults Score(this IRecommender classifier, UserBehaviorDatabase db)
