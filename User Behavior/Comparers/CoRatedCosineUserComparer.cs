@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class CoRatedCosineUserComparer : IUserComparer
+    class CoRatedCosineUserComparer : IComparer
     {
-        public double CompareUsers(double[] userFeaturesOne, double[] userFeaturesTwo)
+        public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {
             double sumProduct = 0.0;
             double sumOneSquared = 0.0;

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class RootMeanSquareUserComparer : IUserComparer
+    class RootMeanSquareUserComparer : IComparer
     {
-        public double CompareUsers(double[] userFeaturesOne, double[] userFeaturesTwo)
+        public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {
             double score = 0.0;
 

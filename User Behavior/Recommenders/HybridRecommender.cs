@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +12,7 @@ namespace UserBehavior.Recommenders
     class HybridRecommender : IRecommender
     {
         private List<IRecommender> classifiers;
-
-        private int internalSuggestions = 100;
-
+        
         public HybridRecommender()
         {
             classifiers = new List<IRecommender>();
@@ -39,6 +38,23 @@ namespace UserBehavior.Recommenders
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
+            List<Suggestion> suggestions = new List<Suggestion>();
+            int numSuggestionsEach = (int)Math.Ceiling((double)numSuggestions / classifiers.Count);
+
+            foreach (IRecommender classifier in classifiers)
+            {
+                suggestions.AddRange(classifier.GetSuggestions(userId, numSuggestionsEach));
+            }
+
+            suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
+
+            return suggestions.Take(numSuggestions).ToList();
+        }
+
+        private List<Suggestion> GetCommonSuggestions(int userId, int numSuggestions)
+        {
+            int internalSuggestions = 100;
+            
             List<List<Suggestion>> suggestions = new List<List<Suggestion>>();
             foreach (IRecommender classifier in classifiers)
             {
@@ -72,12 +88,20 @@ namespace UserBehavior.Recommenders
 
         public void Save(string file)
         {
-            // TODO
+            int n = 1;
+            foreach (IRecommender classifier in classifiers)
+            {
+                classifier.Save(file + ".rm" + (n++));
+            }
         }
 
         public void Load(string file)
         {
-            // TODO
+            int n = 1;
+            foreach (IRecommender classifier in classifiers)
+            {
+                classifier.Load(file + ".rm" + (n++));
+            }
         }
     }
 }

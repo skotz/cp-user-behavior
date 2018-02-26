@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class CorrelationUserComparer : IUserComparer
+    class CorrelationUserComparer : IComparer
     {
-        public double CompareUsers(double[] userFeaturesOne, double[] userFeaturesTwo)
+        public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {
             double average1 = 0.0;
             double average2 = 0.0;

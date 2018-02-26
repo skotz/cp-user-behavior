@@ -48,13 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Objects\ArticleRating.cs" />
+    <Compile Include="Objects\ArticleTagCounts.cs" />
     <Compile Include="Recommenders\ClassifierExtensions.cs" />
     <Compile Include="Comparers\CoRatedCosineUserComparer.cs" />
     <Compile Include="Comparers\CorrelationUserComparer.cs" />
     <Compile Include="Comparers\CosineUserComparer.cs" />
     <Compile Include="Recommenders\HybridRecommender.cs" />
     <Compile Include="Abstractions\IClassifier.cs" />
-    <Compile Include="Abstractions\IUserComparer.cs" />
+    <Compile Include="Abstractions\IComparer.cs" />
     <Compile Include="Comparers\RootMeanSquareUserComparer.cs" />
     <Compile Include="Comparers\SimpleCountUserComparer.cs" />
     <Compile Include="Recommenders\MatrixFactorizationRecommender.cs" />

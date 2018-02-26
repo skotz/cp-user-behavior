@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    interface IUserComparer
+    interface IComparer
     {
-        double CompareUsers(double[] userFeaturesOne, double[] userFeaturesTwo);
+        double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo);
     }
 }

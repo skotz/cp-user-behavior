@@ -14,16 +14,16 @@ namespace UserBehavior.Recommenders
 {
     class UserCollaborativeFilterRecommender : IRecommender
     {
-        private IUserComparer comparer;
+        private IComparer comparer;
         private UserArticleRatingsTable ratings;
 
         private int neighborCount;
         private int latentUserFeatureCount;
 
-        public UserCollaborativeFilterRecommender(IUserComparer userComparer, int knn)
+        public UserCollaborativeFilterRecommender(IComparer userComparer, int numberOfNeighbors)
         {
             comparer = userComparer;
-            neighborCount = knn;
+            neighborCount = numberOfNeighbors;
             latentUserFeatureCount = 20;
         }
 
@@ -129,7 +129,7 @@ namespace UserBehavior.Recommenders
                 }
                 else
                 {
-                    ratings.UserArticleRatings[i].Score = comparer.CompareUsers(ratings.UserArticleRatings[i].ArticleRatings, user.ArticleRatings);
+                    ratings.UserArticleRatings[i].Score = comparer.CompareVectors(ratings.UserArticleRatings[i].ArticleRatings, user.ArticleRatings);
                 }
             }
 

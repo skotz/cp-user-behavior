@@ -1,4 +1,4 @@
-﻿namespace UserBehavior.Objects.Objects
+﻿namespace UserBehavior.Objects
 {
     class ArticleTag
     {

@@ -24,19 +24,23 @@ namespace UserBehavior
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
             UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
 
-            DaySplitter sp = new DaySplitter(db, 2);
+            ISplitter sp = new DaySplitter(db, 1);
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
             //IUserComparer uc = new CoRatedCosineUserComparer();
-            IUserComparer uc = new CorrelationUserComparer();
+            IComparer uc = new CorrelationUserComparer();
             //IUserComparer uc = new SimpleCountUserComparer();
+
             UserCollaborativeFilterRecommender ubc = new UserCollaborativeFilterRecommender(uc, 20);
 
             MatrixFactorizationRecommender sc = new MatrixFactorizationRecommender();
+            
+            IRecommender icf = new ItemCollaborativeFilterRecommender(uc, 20);
 
             HybridRecommender hc = new HybridRecommender();
             hc.Add(ubc);
             hc.Add(sc);
+            hc.Add(icf);
 
             hc.Train(sp.TrainingDB);
             hc.Save("model-20180225-u.dat");
@@ -46,9 +50,9 @@ namespace UserBehavior
             //ubc.userArticleRatings = x.GetUserArticleRatings();
             //ubc.Save("model-20180220-h.dat");
 
-            // ScoreResults scores = hc.Score(sp.TestingDB);
+            ScoreResults scores = hc.Score(sp.TestingDB);
 
-            TestResults results = hc.Test(sp.TestingDB, 100);
+            TestResults results = hc.Test(sp.TestingDB, 30);
 
             hc.GetSuggestions(1, 5);
         }

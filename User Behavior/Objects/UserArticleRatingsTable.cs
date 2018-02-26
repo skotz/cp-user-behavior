@@ -32,13 +32,37 @@ namespace UserBehavior.Objects
             }
         }
 
-        //public void AppendArticleFeatures(double[][] articleFeatures)
-        //{
-        //    for (int i = 0; i < ArticleIndexToID.Count; i++)
-        //    {
-        //        //UserArticleRatings.Add(new UserArticleRatings(-1, ));
-        //    }
-        //}
+        public void AppendArticleFeatures(double[][] articleFeatures)
+        {
+            for (int f = 0; f < articleFeatures[0].Length; f++)
+            {
+                UserArticleRatings newFeature = new UserArticleRatings(int.MaxValue, ArticleIndexToID.Count);
+                
+                for (int a = 0; a < ArticleIndexToID.Count; a++)
+                {
+                    newFeature.ArticleRatings[a] = articleFeatures[a][f];
+                }
+
+                UserArticleRatings.Add(newFeature);
+            }
+        }
+
+        internal void AppendArticleFeatures(List<ArticleTagCounts> articleTags)
+        {
+            double[][] features = new double[articleTags.Count][];
+
+            for (int a = 0; a < articleTags.Count; a++)
+            {
+                features[a] = new double[articleTags[a].TagCounts.Length];
+
+                for (int f = 0; f < articleTags[a].TagCounts.Length; f++)
+                {
+                    features[a][f] = articleTags[a].TagCounts[f];
+                }
+            }
+
+            AppendArticleFeatures(features);
+        }
 
         public Bitmap GenerateVisual()
         {
