@@ -76,7 +76,6 @@
     <Compile Include="Objects\UserAction.cs" />
     <Compile Include="Objects\UserArticleRatings.cs" />
     <Compile Include="Objects\UserActionTag.cs" />
-    <Compile Include="Objects\UserArticleRating.cs" />
     <Compile Include="Objects\UserArticleRatingsTable.cs" />
     <Compile Include="Parsers\DaySplitter.cs" />
     <Compile Include="Abstractions\ISplitter.cs" />

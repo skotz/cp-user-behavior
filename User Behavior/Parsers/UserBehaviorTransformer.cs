@@ -30,7 +30,7 @@ namespace UserBehavior.Parsers
 
             foreach (int userId in table.UserIndexToID)
             {
-                table.UserArticleRatings.Add(new UserArticleRatings(userId, table.ArticleIndexToID.Count)); // + table.NumberOfTags));
+                table.UserArticleRatings.Add(new UserArticleRatings(userId, table.ArticleIndexToID.Count));
             }
 
             var userArticleRatingGroup = db.UserActions

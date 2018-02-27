@@ -83,9 +83,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\User Behavior\User Behavior.csproj">
+    <ProjectReference Include="..\User Behavior\Recommender.csproj">
       <Project>{db5a3fef-d18f-4901-9b4f-959e403bd21b}</Project>
-      <Name>User Behavior</Name>
+      <Name>Recommender</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
