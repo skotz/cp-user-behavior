@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Abstractions;
 using UserBehavior.Comparers;
 using UserBehavior.Mathematics;
 using UserBehavior.Objects;
@@ -15,14 +16,16 @@ namespace UserBehavior.Recommenders
     public class ItemCollaborativeFilterRecommender : IRecommender
     {
         private IComparer comparer;
+        private IRater rater;
         private UserArticleRatingsTable ratings;
         private double[][] transposedRatings;
 
         private int neighborCount;
 
-        public ItemCollaborativeFilterRecommender(IComparer itemComparer, int numberOfNeighbors)
+        public ItemCollaborativeFilterRecommender(IComparer itemComparer, IRater implicitRater, int numberOfNeighbors)
         {
             comparer = itemComparer;
+            rater = implicitRater;
             neighborCount = numberOfNeighbors;
         }
 
@@ -65,7 +68,7 @@ namespace UserBehavior.Recommenders
         public void Train(UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            ratings = ubt.GetUserArticleRatingsTable();
+            ratings = ubt.GetUserArticleRatingsTable(rater);
 
             List<ArticleTagCounts> articleTags = ubt.GetArticleTagCounts();
             ratings.AppendArticleFeatures(articleTags);

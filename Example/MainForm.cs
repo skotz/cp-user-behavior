@@ -8,9 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UserBehavior.Abstractions;
 using UserBehavior.Comparers;
 using UserBehavior.Objects;
 using UserBehavior.Parsers;
+using UserBehavior.Raters;
 using UserBehavior.Recommenders;
 
 namespace Example
@@ -24,7 +26,8 @@ namespace Example
         {
             InitializeComponent();
 
-            recommender = new MatrixFactorizationRecommender(30);
+            IRater rate = new WeightedRater();
+            recommender = new MatrixFactorizationRecommender(30, rate);
 
             if (File.Exists(savedModel))
             {
@@ -40,7 +43,7 @@ namespace Example
                 }
             }
 
-            Test();
+            //Test();
         }
 
         private void btnLoadTrain_Click(object sender, EventArgs e)
@@ -158,32 +161,34 @@ namespace Example
             //uart.SaveUserRatingDistribution("distrib.csv");
             //uart.SaveArticleRatingDistribution("distriba.csv");
 
+            var rate = new WeightedRater();
+
             var sp = new DaySplitter(db, 3);
             var uc = new CorrelationUserComparer();
 
-            var ubc = new UserCollaborativeFilterRecommender(uc, 30);
-            var mfr = new MatrixFactorizationRecommender(30);
-            var icf = new ItemCollaborativeFilterRecommender(uc, 30);
+            var ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
+            var mfr = new MatrixFactorizationRecommender(30, rate);
+            var icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
             var hbr = new HybridRecommender(ubc, mfr, icf);
 
             hbr.Train(sp.TrainingDB);
-            ScoreResults scores1 = hbr.Score(sp.TestingDB);
+            ScoreResults scores1 = hbr.Score(rate, sp.TestingDB);
             TestResults results1 = hbr.Test(sp.TestingDB, 30);
             
-            ubc = new UserCollaborativeFilterRecommender(uc, 30);
-            mfr = new MatrixFactorizationRecommender(30);
-            icf = new ItemCollaborativeFilterRecommender(uc, 30);
+            ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
+            mfr = new MatrixFactorizationRecommender(30, rate);
+            icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
 
             ubc.Train(sp.TrainingDB);
-            ScoreResults scores2 = ubc.Score(sp.TestingDB);
+            ScoreResults scores2 = ubc.Score(rate, sp.TestingDB);
             TestResults results2 = ubc.Test(sp.TestingDB, 30);
 
             mfr.Train(sp.TrainingDB);
-            ScoreResults scores3 = mfr.Score(sp.TestingDB);
+            ScoreResults scores3 = mfr.Score(rate, sp.TestingDB);
             TestResults results3 = mfr.Test(sp.TestingDB, 30);
 
             icf.Train(sp.TrainingDB);
-            ScoreResults scores4 = icf.Score(sp.TestingDB);
+            ScoreResults scores4 = icf.Score(rate, sp.TestingDB);
             TestResults results4 = icf.Test(sp.TestingDB, 30);
 
             using (StreamWriter w = new StreamWriter("results.csv"))

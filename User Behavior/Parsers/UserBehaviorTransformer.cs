@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Abstractions;
 using UserBehavior.Objects;
 
 namespace UserBehavior.Parsers
@@ -20,7 +21,7 @@ namespace UserBehavior.Parsers
         /// <summary>
         /// Get a list of all users and their ratings on every article
         /// </summary>
-        public UserArticleRatingsTable GetUserArticleRatingsTable()
+        public UserArticleRatingsTable GetUserArticleRatingsTable(IRater rater)
         {
             UserArticleRatingsTable table = new UserArticleRatingsTable();
             
@@ -35,7 +36,7 @@ namespace UserBehavior.Parsers
 
             var userArticleRatingGroup = db.UserActions
                 .GroupBy(x => new { x.UserID, x.ArticleID })
-                .Select(g => new { g.Key.UserID, g.Key.ArticleID, Rating = GetRating(g) })
+                .Select(g => new { g.Key.UserID, g.Key.ArticleID, Rating = rater.GetRating(g.ToList()) })
                 .ToList();
 
             foreach (var userAction in userArticleRatingGroup)
@@ -69,32 +70,6 @@ namespace UserBehavior.Parsers
             }
 
             return articleTags;
-        }
-
-        private double GetRating(IGrouping<object, UserAction> actions)
-        {
-            // TODO: This is tightly tied to the CP challenge data. Find a way to make the recommender library generic enough to move all CP stuff out.
-            double rating;
-
-            string lastVote = actions.LastOrDefault(x => x.Action == "DownVote" || x.Action == "UpVote")?.Action ?? "";
-            int viewCount = actions.Count(x => x.Action == "View");
-            bool downloaded = actions.Any(x => x.Action == "Download");
-
-            if (lastVote == "DownVote")
-            {
-                rating = 0.1;
-            }
-            else
-            {
-                rating = 3.0;
-
-                rating += lastVote == "UpVote" ? 1.0 : 0.0;
-                rating += viewCount * 0.5;
-                rating += downloaded ? 0.5 : 0.0;
-            }
-
-            // Guarantee that all user actions for an article result in an implied rating between 0.1 and 5.0
-            return Math.Min(5.0, Math.Max(0.1, rating));
         }
 
         /// <summary>

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Abstractions;
 using UserBehavior.Objects;
 using UserBehavior.Parsers;
+using UserBehavior.Raters;
 
 namespace UserBehavior.Recommenders
 {
@@ -45,10 +47,10 @@ namespace UserBehavior.Recommenders
             return new TestResults(distinctUsers.Count, correctUsers, distinctUserArticles, correctArticles);
         }
 
-        public static ScoreResults Score(this IRecommender classifier, UserBehaviorDatabase db)
+        public static ScoreResults Score(this IRecommender classifier, IRater rater, UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            UserArticleRatingsTable actualRatings = ubt.GetUserArticleRatingsTable();
+            UserArticleRatingsTable actualRatings = ubt.GetUserArticleRatingsTable(rater);
 
             var distinctUserArticlePairs = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).ToList();
 

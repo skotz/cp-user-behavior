@@ -100,7 +100,7 @@ namespace UserBehavior.Objects
         /// </summary>
         public void SaveUserRatingDistribution(string file)
         {
-            int bucketSize = 2;            
+            int bucketSize = 4;            
             int maxRatings = UserArticleRatings.Max(x => x.ArticleRatings.Count(y => y != 0));
             List<int> buckets = new List<int>();
 

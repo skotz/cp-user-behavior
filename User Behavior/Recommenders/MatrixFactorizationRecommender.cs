@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Abstractions;
 using UserBehavior.Mathematics;
 using UserBehavior.Objects;
 using UserBehavior.Parsers;
@@ -15,6 +16,7 @@ namespace UserBehavior.Recommenders
     {
         private UserArticleRatingsTable ratings;
         private SvdResult svd;
+        private IRater rater;
 
         private int numUsers;
         private int numArticles;
@@ -22,21 +24,22 @@ namespace UserBehavior.Recommenders
         private int numFeatures;
         private int learningIterations;        
 
-        public MatrixFactorizationRecommender()
-            : this(20)
+        public MatrixFactorizationRecommender(IRater implicitRater)
+            : this(20, implicitRater)
         {
         }
 
-        public MatrixFactorizationRecommender(int features)
+        public MatrixFactorizationRecommender(int features, IRater implicitRater)
         {
             numFeatures = features;
             learningIterations = 100;
+            rater = implicitRater;
         }
 
         public void Train(UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            ratings = ubt.GetUserArticleRatingsTable();
+            ratings = ubt.GetUserArticleRatingsTable(rater);
 
             SingularValueDecomposition factorizer = new SingularValueDecomposition(numFeatures, learningIterations);
             svd = factorizer.FactorizeMatrix(ratings);

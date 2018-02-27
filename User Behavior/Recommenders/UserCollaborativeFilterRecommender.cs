@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserBehavior.Abstractions;
 using UserBehavior.Comparers;
 using UserBehavior.Mathematics;
 using UserBehavior.Objects;
@@ -15,14 +16,16 @@ namespace UserBehavior.Recommenders
     public class UserCollaborativeFilterRecommender : IRecommender
     {
         private IComparer comparer;
+        private IRater rater;
         private UserArticleRatingsTable ratings;
 
         private int neighborCount;
         private int latentUserFeatureCount;
 
-        public UserCollaborativeFilterRecommender(IComparer userComparer, int numberOfNeighbors)
+        public UserCollaborativeFilterRecommender(IComparer userComparer, IRater implicitRater, int numberOfNeighbors)
         {
             comparer = userComparer;
+            rater = implicitRater;
             neighborCount = numberOfNeighbors;
             latentUserFeatureCount = 20;
         }
@@ -30,7 +33,7 @@ namespace UserBehavior.Recommenders
         public void Train(UserBehaviorDatabase db)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
-            ratings = ubt.GetUserArticleRatingsTable();
+            ratings = ubt.GetUserArticleRatingsTable(rater);
 
             SingularValueDecomposition svd = new SingularValueDecomposition(latentUserFeatureCount, 100);
             SvdResult results = svd.FactorizeMatrix(ratings);
