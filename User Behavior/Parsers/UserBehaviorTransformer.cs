@@ -73,6 +73,7 @@ namespace UserBehavior.Parsers
 
         private double GetRating(IGrouping<object, UserAction> actions)
         {
+            // TODO: This is tightly tied to the CP challenge data. Find a way to make the recommender library generic enough to move all CP stuff out.
             double rating;
 
             string lastVote = actions.LastOrDefault(x => x.Action == "DownVote" || x.Action == "UpVote")?.Action ?? "";
@@ -85,10 +86,10 @@ namespace UserBehavior.Parsers
             }
             else
             {
-                rating = 1.0;
+                rating = 3.0;
 
-                rating += lastVote == "UpVote" ? 2.0 : 0.0;
-                rating += viewCount * 0.75;
+                rating += lastVote == "UpVote" ? 1.0 : 0.0;
+                rating += viewCount * 0.5;
                 rating += downloaded ? 0.5 : 0.0;
             }
 

@@ -18,6 +18,11 @@ namespace UserBehavior.Recommenders
             classifiers = new List<IRecommender>();
         }
 
+        public HybridRecommender(params IRecommender[] recommenders)
+        {
+            classifiers = recommenders.ToList();
+        }
+
         public void Add(IRecommender classifier)
         {
             classifiers.Add(classifier);
