@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Parsers
 {
-    class DaySplitter : ISplitter
+    public class DaySplitter : ISplitter
     {
         public UserBehaviorDatabase TrainingDB { get; private set; }
 

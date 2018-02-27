@@ -8,7 +8,7 @@ using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {
-    interface IRecommender
+    public interface IRecommender
     {
         void Train(UserBehaviorDatabase db);
         

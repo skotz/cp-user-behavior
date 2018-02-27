@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Parsers
 {
-    interface ISplitter
+    public interface ISplitter
     {
         UserBehaviorDatabase TrainingDB { get; }
 

@@ -1,6 +1,6 @@
 ﻿namespace UserBehavior.Objects
 {
-    class Suggestion
+    public class Suggestion
     {
         public int UserID { get; set; }
 

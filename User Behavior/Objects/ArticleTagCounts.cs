@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Objects
 {
-    class ArticleTagCounts
+    public class ArticleTagCounts
     {
         public int ArticleID { get; set; }
 

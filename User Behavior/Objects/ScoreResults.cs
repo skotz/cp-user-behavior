@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UserBehavior
+namespace UserBehavior.Objects
 {
-    class ScoreResults
+    public class ScoreResults
     {
         public double RootMeanSquareDifference { get; set; }
 

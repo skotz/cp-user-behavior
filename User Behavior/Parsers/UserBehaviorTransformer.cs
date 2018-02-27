@@ -8,7 +8,7 @@ using UserBehavior.Objects;
 
 namespace UserBehavior.Parsers
 {
-    class UserBehaviorTransformer
+    public class UserBehaviorTransformer
     {
         private UserBehaviorDatabase db;
 

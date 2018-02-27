@@ -8,7 +8,7 @@ using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {
-    static class ClassifierExtensions
+    public static class ClassifierExtensions
     {
         public static TestResults Test(this IRecommender classifier, UserBehaviorDatabase db, int numSuggestions)
         {

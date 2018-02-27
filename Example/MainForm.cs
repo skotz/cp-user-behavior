@@ -13,7 +13,7 @@ using UserBehavior.Objects;
 using UserBehavior.Parsers;
 using UserBehavior.Recommenders;
 
-namespace UserBehavior
+namespace Example
 {
     public partial class MainForm : Form
     {

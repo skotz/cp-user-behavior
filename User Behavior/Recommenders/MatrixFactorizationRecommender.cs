@@ -11,7 +11,7 @@ using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {
-    class MatrixFactorizationRecommender : IRecommender
+    public class MatrixFactorizationRecommender : IRecommender
     {
         private UserArticleRatingsTable ratings;
         private SvdResult svd;

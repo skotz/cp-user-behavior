@@ -5,7 +5,7 @@ using System.Linq;
 namespace UserBehavior.Objects
 {
     [Serializable]
-    class Article
+    public class Article
     {
         public int ArticleID { get; set; }
 

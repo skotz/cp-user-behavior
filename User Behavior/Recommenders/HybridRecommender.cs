@@ -9,7 +9,7 @@ using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {
-    class HybridRecommender : IRecommender
+    public class HybridRecommender : IRecommender
     {
         private List<IRecommender> classifiers;
         

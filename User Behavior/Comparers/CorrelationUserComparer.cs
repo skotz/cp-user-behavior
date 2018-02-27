@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class CorrelationUserComparer : IComparer
+    public class CorrelationUserComparer : IComparer
     {
         public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {

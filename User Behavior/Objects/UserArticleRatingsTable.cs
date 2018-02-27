@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Objects
 {
-    class UserArticleRatingsTable
+    public class UserArticleRatingsTable
     {
         public List<UserArticleRatings> UserArticleRatings { get; set; }
 

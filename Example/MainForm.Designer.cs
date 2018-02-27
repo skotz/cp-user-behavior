@@ -1,4 +1,4 @@
-﻿namespace UserBehavior
+﻿namespace Example
 {
     partial class MainForm
     {

@@ -10,7 +10,7 @@ using UserBehavior.Objects;
 namespace UserBehavior.Parsers
 {
     [Serializable]
-    class UserBehaviorDatabase
+    public class UserBehaviorDatabase
     {
         public List<Tag> Tags { get; set; }
 

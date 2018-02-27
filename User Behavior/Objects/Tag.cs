@@ -3,7 +3,7 @@
 namespace UserBehavior.Objects
 {
     [Serializable]
-    class Tag
+    public class Tag
     {
         public string Name { get; set; }
 

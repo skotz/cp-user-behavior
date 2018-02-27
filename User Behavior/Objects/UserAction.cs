@@ -3,7 +3,7 @@
 namespace UserBehavior.Objects
 {
     [Serializable]
-    class UserAction
+    public class UserAction
     {
         public int Day { get; set; }
 

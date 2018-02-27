@@ -1,6 +1,6 @@
 ﻿namespace UserBehavior.Objects
 {
-    class UserActionTag
+    public class UserActionTag
     {
         public int UserID { get; set; }
 

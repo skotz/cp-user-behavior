@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UserBehavior.Objects
 {
-    class UserArticleRatings
+    public class UserArticleRatings
     {
         public int UserID { get; set; }
 

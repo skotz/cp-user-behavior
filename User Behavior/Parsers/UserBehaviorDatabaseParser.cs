@@ -8,7 +8,7 @@ using UserBehavior.Objects;
 
 namespace UserBehavior.Parsers
 {
-    class UserBehaviorDatabaseParser
+    public class UserBehaviorDatabaseParser
     {
         private const string HeaderTags = "# Tags";
         private const string HeaderArticles = "# Articles";

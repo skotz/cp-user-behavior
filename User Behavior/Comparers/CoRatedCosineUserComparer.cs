@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class CoRatedCosineUserComparer : IComparer
+    public class CoRatedCosineUserComparer : IComparer
     {
         public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserBehavior.Comparers
 {
-    class RootMeanSquareUserComparer : IComparer
+    public class RootMeanSquareUserComparer : IComparer
     {
         public double CompareVectors(double[] userFeaturesOne, double[] userFeaturesTwo)
         {

@@ -12,7 +12,7 @@ using UserBehavior.Parsers;
 
 namespace UserBehavior.Recommenders
 {
-    class UserCollaborativeFilterRecommender : IRecommender
+    public class UserCollaborativeFilterRecommender : IRecommender
     {
         private IComparer comparer;
         private UserArticleRatingsTable ratings;
