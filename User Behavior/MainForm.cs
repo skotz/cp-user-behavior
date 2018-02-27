@@ -24,6 +24,12 @@ namespace UserBehavior
             UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
             UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
 
+            var ubt = new UserBehaviorTransformer(db);
+            var uart = ubt.GetUserArticleRatingsTable();
+            uart.SaveSparcityVisual("sparcity.bmp");
+            uart.SaveUserRatingDistribution("distrib.csv");
+            uart.SaveArticleRatingDistribution("distriba.csv");
+
             ISplitter sp = new DaySplitter(db, 3);
 
             //IUserComparer uc = new RootMeanSquareUserComparer();
