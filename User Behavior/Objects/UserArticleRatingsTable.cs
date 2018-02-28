@@ -10,7 +10,7 @@ namespace UserBehavior.Objects
 {
     public class UserArticleRatingsTable
     {
-        public List<UserArticleRatings> UserArticleRatings { get; set; }
+        public List<UserArticleRatings> Users { get; set; }
 
         public List<int> UserIndexToID { get; set; }
 
@@ -20,7 +20,7 @@ namespace UserBehavior.Objects
 
         public UserArticleRatingsTable()
         {
-            UserArticleRatings = new List<UserArticleRatings>();
+            Users = new List<UserArticleRatings>();
             UserIndexToID = new List<int>();
             ArticleIndexToID = new List<int>();
         }
@@ -29,7 +29,7 @@ namespace UserBehavior.Objects
         {
             for (int i = 0; i < UserIndexToID.Count; i++)
             {
-                UserArticleRatings[i].AppendRatings(userFeatures[i]);
+                Users[i].AppendRatings(userFeatures[i]);
             }
         }
 
@@ -44,7 +44,7 @@ namespace UserBehavior.Objects
                     newFeature.ArticleRatings[a] = articleFeatures[a][f];
                 }
 
-                UserArticleRatings.Add(newFeature);
+                Users.Add(newFeature);
             }
         }
 
@@ -67,8 +67,8 @@ namespace UserBehavior.Objects
 
         public void SaveSparcityVisual(string file)
         {
-            double min = UserArticleRatings.Min(x => x.ArticleRatings.Min());
-            double max = UserArticleRatings.Max(x => x.ArticleRatings.Max());
+            double min = Users.Min(x => x.ArticleRatings.Min());
+            double max = Users.Max(x => x.ArticleRatings.Max());
 
             Bitmap b = new Bitmap(ArticleIndexToID.Count, UserIndexToID.Count);
             int numPixels = 0;
@@ -80,13 +80,13 @@ namespace UserBehavior.Objects
                     //int brightness = 255 - (int)(((UserArticleRatings[y].ArticleRatings[x] - min) / (max - min)) * 255);
                     //brightness = Math.Max(0, Math.Min(255, brightness));
 
-                    int brightness = UserArticleRatings[y].ArticleRatings[x] == 0 ? 255 : 0;
+                    int brightness = Users[y].ArticleRatings[x] == 0 ? 255 : 0;
 
                     Color c = Color.FromArgb(brightness, brightness, brightness);
 
                     b.SetPixel(x, y, c);
 
-                    numPixels += UserArticleRatings[y].ArticleRatings[x] != 0 ? 1 : 0;
+                    numPixels += Users[y].ArticleRatings[x] != 0 ? 1 : 0;
                 }
             }
 
@@ -101,7 +101,7 @@ namespace UserBehavior.Objects
         public void SaveUserRatingDistribution(string file)
         {
             int bucketSize = 4;            
-            int maxRatings = UserArticleRatings.Max(x => x.ArticleRatings.Count(y => y != 0));
+            int maxRatings = Users.Max(x => x.ArticleRatings.Count(y => y != 0));
             List<int> buckets = new List<int>();
 
             for (int i = 0; i <= Math.Floor((double)maxRatings / bucketSize); i++)
@@ -109,7 +109,7 @@ namespace UserBehavior.Objects
                 buckets.Add(0);
             }
 
-            foreach (UserArticleRatings ratings in UserArticleRatings)
+            foreach (UserArticleRatings ratings in Users)
             {
                 buckets[(int)Math.Floor((double)ratings.ArticleRatings.Count(x => x != 0) / bucketSize)]++;
             }
@@ -141,7 +141,7 @@ namespace UserBehavior.Objects
 
             for (int i = 0; i < ArticleIndexToID.Count; i ++)
             {
-                int readers = UserArticleRatings.Select(x => x.ArticleRatings[i]).Count(x => x != 0);
+                int readers = Users.Select(x => x.ArticleRatings[i]).Count(x => x != 0);
                 buckets[(int)Math.Floor((double)readers / bucketSize)]++;
             }
             

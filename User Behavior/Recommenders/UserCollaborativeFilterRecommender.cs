@@ -43,7 +43,7 @@ namespace UserBehavior.Recommenders
         
         public double GetRating(int userId, int articleId)
         {
-            UserArticleRatings user = ratings.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
+            UserArticleRatings user = ratings.Users.FirstOrDefault(x => x.UserID == userId);
             List<UserArticleRatings> neighbors = GetNearestNeighbors(user, neighborCount);
 
             return GetRating(user, neighbors, articleId);
@@ -80,9 +80,9 @@ namespace UserBehavior.Recommenders
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
-            UserArticleRatings user = ratings.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
-            List<Suggestion> suggestions = new List<Suggestion>();
             int userIndex = ratings.UserIndexToID.IndexOf(userId);
+            UserArticleRatings user = ratings.Users[userIndex];
+            List<Suggestion> suggestions = new List<Suggestion>();
 
             if (user != null)
             {
@@ -124,19 +124,19 @@ namespace UserBehavior.Recommenders
         {
             List<UserArticleRatings> neighbors = new List<UserArticleRatings>();
 
-            for (int i = 0; i < ratings.UserArticleRatings.Count; i++)
+            for (int i = 0; i < ratings.Users.Count; i++)
             {
-                if (ratings.UserArticleRatings[i].UserID == user.UserID)
+                if (ratings.Users[i].UserID == user.UserID)
                 {
-                    ratings.UserArticleRatings[i].Score = double.NegativeInfinity;
+                    ratings.Users[i].Score = double.NegativeInfinity;
                 }
                 else
                 {
-                    ratings.UserArticleRatings[i].Score = comparer.CompareVectors(ratings.UserArticleRatings[i].ArticleRatings, user.ArticleRatings);
+                    ratings.Users[i].Score = comparer.CompareVectors(ratings.Users[i].ArticleRatings, user.ArticleRatings);
                 }
             }
 
-            var similarUsers = ratings.UserArticleRatings.OrderByDescending(x => x.Score);
+            var similarUsers = ratings.Users.OrderByDescending(x => x.Score);
 
             return similarUsers.Take(numUsers).ToList();
         }
@@ -147,11 +147,11 @@ namespace UserBehavior.Recommenders
             using (GZipStream zip = new GZipStream(fs, CompressionMode.Compress))
             using (StreamWriter w = new StreamWriter(zip))
             {
-                w.WriteLine(ratings.UserArticleRatings.Count);
-                w.WriteLine(ratings.UserArticleRatings[0].ArticleRatings.Length);
+                w.WriteLine(ratings.Users.Count);
+                w.WriteLine(ratings.Users[0].ArticleRatings.Length);
                 w.WriteLine(ratings.NumberOfTags);
 
-                foreach (UserArticleRatings t in ratings.UserArticleRatings)
+                foreach (UserArticleRatings t in ratings.Users)
                 {
                     w.WriteLine(t.UserID);
 
@@ -201,7 +201,7 @@ namespace UserBehavior.Recommenders
                         uat.ArticleRatings[x] = double.Parse(r.ReadLine());
                     }
 
-                    ratings.UserArticleRatings.Add(uat);
+                    ratings.Users.Add(uat);
                 }
 
                 total = int.Parse(r.ReadLine());

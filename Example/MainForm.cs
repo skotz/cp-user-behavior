@@ -43,7 +43,8 @@ namespace Example
                 }
             }
 
-            //Test();
+            //RecommenderTests.TestAllRecommenders();
+            //RecommenderTests.FindBestRaterWeights();
         }
 
         private void btnLoadTrain_Click(object sender, EventArgs e)
@@ -148,57 +149,6 @@ namespace Example
             }
 
             EnableForm(true);
-        }
-        
-        private void Test()
-        {
-            UserBehaviorDatabaseParser dbp = new UserBehaviorDatabaseParser();
-            UserBehaviorDatabase db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
-
-            //var ubt = new UserBehaviorTransformer(db);
-            //var uart = ubt.GetUserArticleRatingsTable();
-            //uart.SaveSparcityVisual("sparcity.bmp");
-            //uart.SaveUserRatingDistribution("distrib.csv");
-            //uart.SaveArticleRatingDistribution("distriba.csv");
-
-            var rate = new WeightedRater();
-
-            var sp = new DaySplitter(db, 3);
-            var uc = new CorrelationUserComparer();
-
-            var ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
-            var mfr = new MatrixFactorizationRecommender(30, rate);
-            var icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
-            var hbr = new HybridRecommender(ubc, mfr, icf);
-
-            hbr.Train(sp.TrainingDB);
-            ScoreResults scores1 = hbr.Score(rate, sp.TestingDB);
-            TestResults results1 = hbr.Test(sp.TestingDB, 30);
-            
-            ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
-            mfr = new MatrixFactorizationRecommender(30, rate);
-            icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
-
-            ubc.Train(sp.TrainingDB);
-            ScoreResults scores2 = ubc.Score(rate, sp.TestingDB);
-            TestResults results2 = ubc.Test(sp.TestingDB, 30);
-
-            mfr.Train(sp.TrainingDB);
-            ScoreResults scores3 = mfr.Score(rate, sp.TestingDB);
-            TestResults results3 = mfr.Test(sp.TestingDB, 30);
-
-            icf.Train(sp.TrainingDB);
-            ScoreResults scores4 = icf.Score(rate, sp.TestingDB);
-            TestResults results4 = icf.Test(sp.TestingDB, 30);
-
-            using (StreamWriter w = new StreamWriter("results.csv"))
-            {
-                w.WriteLine("model,rmse,users,user-solved,articles,articles-solved");
-                w.WriteLine("UCF," + scores2.RootMeanSquareDifference + "," + results2.TotalUsers + "," + results2.UsersSolved + "," + results2.TotalArticles + "," + results2.ArticlesSolved);
-                w.WriteLine("SVD," + scores3.RootMeanSquareDifference + "," + results3.TotalUsers + "," + results3.UsersSolved + "," + results3.TotalArticles + "," + results3.ArticlesSolved);
-                w.WriteLine("ICF," + scores4.RootMeanSquareDifference + "," + results4.TotalUsers + "," + results4.UsersSolved + "," + results4.TotalArticles + "," + results4.ArticlesSolved);
-                w.WriteLine("HR," + scores1.RootMeanSquareDifference + "," + results1.TotalUsers + "," + results1.UsersSolved + "," + results1.TotalArticles + "," + results1.ArticlesSolved);
-            }
         }
     }
 

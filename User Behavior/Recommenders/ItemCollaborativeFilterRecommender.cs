@@ -31,7 +31,7 @@ namespace UserBehavior.Recommenders
 
         private void FillTransposedRatings()
         {
-            int features = ratings.UserArticleRatings.Count;
+            int features = ratings.Users.Count;
             transposedRatings = new double[ratings.ArticleIndexToID.Count][];
 
             // Precompute a transposed ratings matrix where each row becomes an article and each column a user or tag
@@ -41,7 +41,7 @@ namespace UserBehavior.Recommenders
 
                 for (int f = 0; f < features; f++)
                 {
-                    transposedRatings[a][f] = ratings.UserArticleRatings[f].ArticleRatings[a];
+                    transposedRatings[a][f] = ratings.Users[f].ArticleRatings[a];
                 }
             }
         }
@@ -53,9 +53,9 @@ namespace UserBehavior.Recommenders
             for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
             {
                 // Create a list of every article this user has viewed
-                if (ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
+                if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                 {
-                    items.Add(new Tuple<int, double>(articleIndex, ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex]));
+                    items.Add(new Tuple<int, double>(articleIndex, ratings.Users[userIndex].ArticleRatings[articleIndex]));
                 }
             }
 
@@ -81,8 +81,8 @@ namespace UserBehavior.Recommenders
             int userIndex = ratings.UserIndexToID.IndexOf(userId);
             int articleIndex = ratings.ArticleIndexToID.IndexOf(articleId);
 
-            var userRatings = ratings.UserArticleRatings[userIndex].ArticleRatings.Where(x => x != 0);
-            var articleRatings = ratings.UserArticleRatings.Select(x => x.ArticleRatings[articleIndex]).Where(x => x != 0);
+            var userRatings = ratings.Users[userIndex].ArticleRatings.Where(x => x != 0);
+            var articleRatings = ratings.Users.Select(x => x.ArticleRatings[articleIndex]).Where(x => x != 0);
 
             double averageUser = userRatings.Count() > 0 ? userRatings.Average() : 0;
             double averageArticle = articleRatings.Count() > 0 ? articleRatings.Average() : 0;
@@ -142,11 +142,11 @@ namespace UserBehavior.Recommenders
             using (GZipStream zip = new GZipStream(fs, CompressionMode.Compress))
             using (StreamWriter w = new StreamWriter(zip))
             {
-                w.WriteLine(ratings.UserArticleRatings.Count);
-                w.WriteLine(ratings.UserArticleRatings[0].ArticleRatings.Length);
+                w.WriteLine(ratings.Users.Count);
+                w.WriteLine(ratings.Users[0].ArticleRatings.Length);
                 w.WriteLine(ratings.NumberOfTags);
 
-                foreach (UserArticleRatings t in ratings.UserArticleRatings)
+                foreach (UserArticleRatings t in ratings.Users)
                 {
                     w.WriteLine(t.UserID);
 
@@ -196,7 +196,7 @@ namespace UserBehavior.Recommenders
                         uat.ArticleRatings[x] = double.Parse(r.ReadLine());
                     }
 
-                    ratings.UserArticleRatings.Add(uat);
+                    ratings.Users.Add(uat);
                 }
 
                 total = int.Parse(r.ReadLine());

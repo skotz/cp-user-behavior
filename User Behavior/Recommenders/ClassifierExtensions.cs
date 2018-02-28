@@ -14,12 +14,17 @@ namespace UserBehavior.Recommenders
     {
         public static TestResults Test(this IRecommender classifier, UserBehaviorDatabase db, int numSuggestions)
         {
+            // We're only using the ratings to check for existence of a rating, so we can use a simple rater for everything
+            SimpleRater rater = new SimpleRater();
+            UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
+            UserArticleRatingsTable ratings = ubt.GetUserArticleRatingsTable(rater);
+
             int correctArticles = 0;
             int correctUsers = 0;
 
             // Get a list of users in this database who interacted with an article for the first time
             List<int> distinctUsers = db.UserActions.Select(x => x.UserID).Distinct().ToList();
-            
+
             int distinctUserArticles = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).Count();
 
             // Now get suggestions for each of these users
@@ -27,11 +32,14 @@ namespace UserBehavior.Recommenders
             {
                 List<Suggestion> suggestions = classifier.GetSuggestions(user, numSuggestions);
                 bool foundOne = false;
-                
+                int userIndex = ratings.UserIndexToID.IndexOf(user);
+
                 foreach (Suggestion s in suggestions)
                 {
+                    int articleIndex = ratings.ArticleIndexToID.IndexOf(s.ArticleID);
+
                     // If one of the top N suggestions is what the user ended up reading, then we're golden
-                    if (db.UserActions.Any(x => x.UserID == user && x.ArticleID == s.ArticleID))
+                    if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                     {
                         correctArticles++;
 
@@ -47,7 +55,7 @@ namespace UserBehavior.Recommenders
             return new TestResults(distinctUsers.Count, correctUsers, distinctUserArticles, correctArticles);
         }
 
-        public static ScoreResults Score(this IRecommender classifier, IRater rater, UserBehaviorDatabase db)
+        public static ScoreResults Score(this IRecommender classifier, UserBehaviorDatabase db, IRater rater)
         {
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
             UserArticleRatingsTable actualRatings = ubt.GetUserArticleRatingsTable(rater);
@@ -62,7 +70,7 @@ namespace UserBehavior.Recommenders
                 int userIndex = actualRatings.UserIndexToID.IndexOf(userArticle.Key.UserID);
                 int articleIndex = actualRatings.ArticleIndexToID.IndexOf(userArticle.Key.ArticleID);
 
-                double actualRating = actualRatings.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
+                double actualRating = actualRatings.Users[userIndex].ArticleRatings[articleIndex];
 
                 if (actualRating != 0)
                 {

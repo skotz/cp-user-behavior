@@ -31,7 +31,7 @@ namespace UserBehavior.Parsers
 
             foreach (int userId in table.UserIndexToID)
             {
-                table.UserArticleRatings.Add(new UserArticleRatings(userId, table.ArticleIndexToID.Count));
+                table.Users.Add(new UserArticleRatings(userId, table.ArticleIndexToID.Count));
             }
 
             var userArticleRatingGroup = db.UserActions
@@ -44,7 +44,7 @@ namespace UserBehavior.Parsers
                 int userIndex = table.UserIndexToID.IndexOf(userAction.UserID);
                 int articleIndex = table.ArticleIndexToID.IndexOf(userAction.ArticleID);
 
-                table.UserArticleRatings[userIndex].ArticleRatings[articleIndex] = userAction.Rating;
+                table.Users[userIndex].ArticleRatings[articleIndex] = userAction.Rating;
             }
 
             return table;

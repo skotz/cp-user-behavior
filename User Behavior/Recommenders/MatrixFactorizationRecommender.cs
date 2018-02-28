@@ -49,33 +49,33 @@ namespace UserBehavior.Recommenders
         {
             int userIndex = ratings.UserIndexToID.IndexOf(userId);
             int articleIndex = ratings.ArticleIndexToID.IndexOf(articleId);
-            
+
+            return GetRatingForIndex(userIndex, articleIndex);
+        }
+
+        private double GetRatingForIndex(int userIndex, int articleIndex)
+        {
             return svd.AverageGlobalRating + svd.UserBiases[userIndex] + svd.ArticleBiases[articleIndex] + Matrix.GetDotProduct(svd.UserFeatures[userIndex], svd.ArticleFeatures[articleIndex]);
         }
 
         public List<Suggestion> GetSuggestions(int userId, int numSuggestions)
         {
-            UserArticleRatings user = ratings.UserArticleRatings.FirstOrDefault(x => x.UserID == userId);
-            List<Suggestion> suggestions = new List<Suggestion>();
             int userIndex = ratings.UserIndexToID.IndexOf(userId);
+            UserArticleRatings user = ratings.Users[userIndex];
+            List<Suggestion> suggestions = new List<Suggestion>();
 
-            if (user != null)
+            for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
             {
-                for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
+                // If the user in question hasn't rated the given article yet
+                if (user.ArticleRatings[articleIndex] == 0)
                 {
-                    int articleId = ratings.ArticleIndexToID[articleIndex];
+                    double rating = GetRatingForIndex(userIndex, articleIndex);
 
-                    // If the user in question hasn't rated the given article yet
-                    if (user.ArticleRatings[articleIndex] == 0)
-                    {
-                        double rating = GetRating(user.UserID, articleId);
-
-                        suggestions.Add(new Suggestion(userId, articleId, rating));
-                    }
+                    suggestions.Add(new Suggestion(userId, ratings.ArticleIndexToID[articleIndex], rating));
                 }
-
-                suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
             }
+
+            suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
 
             return suggestions.Take(numSuggestions).ToList();
         }
@@ -118,7 +118,7 @@ namespace UserBehavior.Recommenders
                     }
                 }
 
-                foreach (UserArticleRatings t in ratings.UserArticleRatings)
+                foreach (UserArticleRatings t in ratings.Users)
                 {
                     w.WriteLine(t.UserID);
 
@@ -200,7 +200,7 @@ namespace UserBehavior.Recommenders
                         uat.ArticleRatings[x] = double.Parse(r.ReadLine());
                     }
 
-                    ratings.UserArticleRatings.Add(uat);
+                    ratings.Users.Add(uat);
                 }
 
                 for (int i = 0; i < numUsers; i++)

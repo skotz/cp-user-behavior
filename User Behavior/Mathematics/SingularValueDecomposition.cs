@@ -39,8 +39,8 @@ namespace UserBehavior.Mathematics
 
         private void Initialize(UserArticleRatingsTable ratings)
         {
-            numUsers = ratings.UserArticleRatings.Count;
-            numArticles = ratings.UserArticleRatings[0].ArticleRatings.Length;
+            numUsers = ratings.Users.Count;
+            numArticles = ratings.Users[0].ArticleRatings.Length;
 
             Random rand = new Random();
 
@@ -89,11 +89,11 @@ namespace UserBehavior.Mathematics
                 {
                     for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                     {
-                        if (ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
+                        if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                         {
                             double estimatedRating = averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + Matrix.GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
 
-                            double error = ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] - estimatedRating;
+                            double error = ratings.Users[userIndex].ArticleRatings[articleIndex] - estimatedRating;
 
                             rmse += Math.Pow(error, 2);
                             count++;
@@ -142,9 +142,9 @@ namespace UserBehavior.Mathematics
                 for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
                 {
                     // If the given user rated the given item, add it to our average
-                    if (ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex] != 0)
+                    if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                     {
-                        sum += ratings.UserArticleRatings[userIndex].ArticleRatings[articleIndex];
+                        sum += ratings.Users[userIndex].ArticleRatings[articleIndex];
                         count++;
                     }
                 }

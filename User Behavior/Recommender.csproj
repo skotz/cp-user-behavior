@@ -54,6 +54,7 @@
     <Compile Include="Abstractions\IRater.cs" />
     <Compile Include="Objects\ArticleRating.cs" />
     <Compile Include="Objects\ArticleTagCounts.cs" />
+    <Compile Include="Raters\SimpleRater.cs" />
     <Compile Include="Raters\WeightedRater.cs" />
     <Compile Include="Recommenders\ClassifierExtensions.cs" />
     <Compile Include="Comparers\CoRatedCosineUserComparer.cs" />
