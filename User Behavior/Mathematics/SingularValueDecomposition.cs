@@ -74,7 +74,7 @@ namespace UserBehavior.Mathematics
         {
             Initialize(ratings);
 
-            double rmse;
+            double squaredError;
             int count;
             List<double> rmseAll = new List<double>();
 
@@ -82,7 +82,7 @@ namespace UserBehavior.Mathematics
 
             for (int i = 0; i < learningIterations; i++)
             {
-                rmse = 0.0;
+                squaredError = 0.0;
                 count = 0;
 
                 for (int userIndex = 0; userIndex < numUsers; userIndex++)
@@ -95,7 +95,7 @@ namespace UserBehavior.Mathematics
 
                             double error = ratings.Users[userIndex].ArticleRatings[articleIndex] - estimatedRating;
 
-                            rmse += Math.Pow(error, 2);
+                            squaredError += Math.Pow(error, 2);
                             count++;
 
                             averageGlobalRating += learningRate * (error - regularizationTerm * averageGlobalRating);
@@ -111,8 +111,8 @@ namespace UserBehavior.Mathematics
                     }
                 }
 
-                rmse = Math.Sqrt(rmse / count);
-                rmseAll.Add(rmse);
+                squaredError = Math.Sqrt(squaredError / count);
+                rmseAll.Add(squaredError);
 
                 learningRate *= learningDescent;
             }
