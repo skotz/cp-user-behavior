@@ -56,8 +56,8 @@ namespace Example
 
                     mfr.Train(sp.TrainingDB);
 
-                    var score = mfr.Score(sp.TrainingDB, rate);
-                    var results = mfr.Test(sp.TrainingDB, 100);
+                    var score = mfr.Score(sp.TestingDB, rate);
+                    var results = mfr.Test(sp.TestingDB, 100);
 
                     double accuracy = (double)results.UsersSolved / results.TotalUsers;
 
@@ -88,7 +88,7 @@ namespace Example
             //uart.SaveArticleRatingDistribution("distriba.csv");
 
             var rate = new WeightedRater();
-            var sp = new DaySplitter(db, 3);
+            var sp = new DaySplitter(db, 5);
             var uc = new CorrelationUserComparer();
 
             var ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);

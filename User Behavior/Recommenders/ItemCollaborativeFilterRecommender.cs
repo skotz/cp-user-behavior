@@ -105,8 +105,21 @@ namespace UserBehavior.Recommenders
                 foreach (ArticleRating neighbor in neighboringArticles)
                 {
                     int neighborArticleIndex = ratings.ArticleIndexToID.IndexOf(neighbor.ArticleID);
-                    var nonZeroRatings = transposedRatings[neighborArticleIndex].Where(x => x != 0);
-                    double averageArticleRating = nonZeroRatings.Count() > 0 ? nonZeroRatings.Average() : 0;
+
+                    double averageArticleRating = 0.0;
+                    int count = 0;
+                    for (int userRatingIndex = 0; userRatingIndex < ratings.UserIndexToID.Count; userRatingIndex++)
+                    {
+                        if (transposedRatings[neighborArticleIndex][userRatingIndex] != 0)
+                        {
+                            averageArticleRating += transposedRatings[neighborArticleIndex][userRatingIndex];
+                            count++;
+                        }
+                    }
+                    if (count > 0)
+                    {
+                        averageArticleRating /= count;
+                    }
 
                     suggestions.Add(new Suggestion(userId, neighbor.ArticleID, averageArticleRating));
                 }

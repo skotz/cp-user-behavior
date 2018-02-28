@@ -84,38 +84,34 @@ namespace UserBehavior.Recommenders
             UserArticleRatings user = ratings.Users[userIndex];
             List<Suggestion> suggestions = new List<Suggestion>();
 
-            if (user != null)
-            {
-                var neighbors = GetNearestNeighbors(user, neighborCount);
-                
-                for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
-                {
-                    // If the user in question hasn't rated the given article yet
-                    if (user.ArticleRatings[articleIndex] == 0)
-                    {
-                        double score = 0.0;
-                        int count = 0;
-                        for (int u = 0; u < neighbors.Count; u++)
-                        {
-                            if (neighbors[u].ArticleRatings[articleIndex] != 0)
-                            {
-                                // Calculate the weighted score for this article   
-                                score += neighbors[u].ArticleRatings[articleIndex]; // - avgRating; // * neighbors[u].Score;
-                                count++;
-                            }
-                        }
-                        if (count > 0)
-                        {
-                            score /= count;
-                            //score += avgUserRating;
-                        }
+            var neighbors = GetNearestNeighbors(user, neighborCount);
 
-                        suggestions.Add(new Suggestion(userId, ratings.ArticleIndexToID[articleIndex], score));
+            for (int articleIndex = 0; articleIndex < ratings.ArticleIndexToID.Count; articleIndex++)
+            {
+                // If the user in question hasn't rated the given article yet
+                if (user.ArticleRatings[articleIndex] == 0)
+                {
+                    double score = 0.0;
+                    int count = 0;
+                    for (int u = 0; u < neighbors.Count; u++)
+                    {
+                        if (neighbors[u].ArticleRatings[articleIndex] != 0)
+                        {
+                            // Calculate the weighted score for this article   
+                            score += neighbors[u].ArticleRatings[articleIndex]; // - avgRating; // * neighbors[u].Score;
+                            count++;
+                        }
                     }
+                    if (count > 0)
+                    {
+                        score /= count;
+                    }
+
+                    suggestions.Add(new Suggestion(userId, ratings.ArticleIndexToID[articleIndex], score));
                 }
-                
-                suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
             }
+
+            suggestions.Sort((c, n) => n.Rating.CompareTo(c.Rating));
 
             return suggestions.Take(numSuggestions).ToList();
         }
