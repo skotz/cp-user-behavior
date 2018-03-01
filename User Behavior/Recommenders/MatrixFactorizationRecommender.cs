@@ -43,6 +43,9 @@ namespace UserBehavior.Recommenders
 
             SingularValueDecomposition factorizer = new SingularValueDecomposition(numFeatures, learningIterations);
             svd = factorizer.FactorizeMatrix(ratings);
+
+            numUsers = ratings.UserIndexToID.Count;
+            numArticles = ratings.ArticleIndexToID.Count;
         }
         
         public double GetRating(int userId, int articleId)

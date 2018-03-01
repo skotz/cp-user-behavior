@@ -26,8 +26,11 @@ namespace Example
         {
             InitializeComponent();
 
-            IRater rate = new WeightedRater();
-            recommender = new MatrixFactorizationRecommender(30, rate);
+            IRater rate = new LinearRater();
+            IComparer compare = new CorrelationUserComparer();
+
+            recommender = new UserCollaborativeFilterRecommender(compare, rate, 50);
+            //recommender = new MatrixFactorizationRecommender(30, rate);
 
             if (File.Exists(savedModel))
             {
