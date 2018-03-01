@@ -19,7 +19,7 @@ namespace Example
         {
             using (StreamWriter w = new StreamWriter("rater-weights.csv", true))
             {
-                w.WriteLine("down,start,up,view,dl,rmse,accuracy");
+                w.WriteLine("down,up,view,dl,rmse,solved,total,precision,rank");
             }
 
             var once = new User(0, "");
@@ -27,16 +27,13 @@ namespace Example
 
             for (double up = 0.0; up < 5.0; up += 1)
             {
-                for (double down = 0.0; down < 5.0; down += 1)
+                for (double down = -5.0; down <= 0.0; down += 1)
                 {
                     for (double dl = 0.0; dl < 5.0; dl += 1)
                     {
                         for (double view = 0.0; view < 5.0; view += 1)
                         {
-                            for (double start = 0.0; start < 5.0; start += 1)
-                            {
-                                options.Add(new { up, down, dl, view, start });
-                            }
+                            options.Add(new { up, down, dl, view });
                         }
                     }
                 }
@@ -44,28 +41,27 @@ namespace Example
 
             var dbp = new UserBehaviorDatabaseParser();
             var db = dbp.LoadUserBehaviorDatabase("UserBehaviour.txt");
-            var sp = new DaySplitter(db, 5);
-            var uc = new CorrelationUserComparer();
+            var sp = new DaySplitter(db, 3);
+            var cp = new CorrelationUserComparer();
             
             Parallel.ForEach(options, set =>
             {
                 try
                 {
-                    var rate = new WeightedRater(set.down, set.start, set.up, set.view, set.dl);
+                    var rate = new LinearRater(set.down, set.up, set.view, set.dl);
                     var mfr = new MatrixFactorizationRecommender(20, rate);
+                    //var mfr = new UserCollaborativeFilterRecommender(cp, rate, set.features);
 
                     mfr.Train(sp.TrainingDB);
 
                     var score = mfr.Score(sp.TestingDB, rate);
                     var results = mfr.Test(sp.TestingDB, 100);
-
-                    double accuracy = (double)results.UsersSolved / results.TotalUsers;
-
+                    
                     lock (once)
                     {
                         using (StreamWriter w = new StreamWriter("rater-weights.csv", true))
                         {
-                            w.WriteLine(set.down + "," + set.start + "," + set.up + "," + set.view + "," + set.dl + "," + score.RootMeanSquareDifference + "," + accuracy);
+                            w.WriteLine(set.down + "," + set.up + "," + set.view + "," + set.dl + "," + score.RootMeanSquareDifference + "," + results.UsersSolved + "," + results.TotalUsers + "," + results.AveragePrecision + "," + results.AverageRecall);
                         }
                     }
                 }
@@ -87,7 +83,7 @@ namespace Example
             //uart.SaveUserRatingDistribution("distrib.csv");
             //uart.SaveArticleRatingDistribution("distriba.csv");
 
-            var rate = new WeightedRater();
+            var rate = new LinearRater();
             var sp = new DaySplitter(db, 5);
             var uc = new CorrelationUserComparer();
 
@@ -118,11 +114,11 @@ namespace Example
 
             using (StreamWriter w = new StreamWriter("results.csv"))
             {
-                w.WriteLine("model,rmse,users,user-solved,articles,articles-solved");
-                w.WriteLine("UCF," + scores2.RootMeanSquareDifference + "," + results2.TotalUsers + "," + results2.UsersSolved + "," + results2.TotalArticles + "," + results2.ArticlesSolved);
-                w.WriteLine("SVD," + scores3.RootMeanSquareDifference + "," + results3.TotalUsers + "," + results3.UsersSolved + "," + results3.TotalArticles + "," + results3.ArticlesSolved);
-                w.WriteLine("ICF," + scores4.RootMeanSquareDifference + "," + results4.TotalUsers + "," + results4.UsersSolved + "," + results4.TotalArticles + "," + results4.ArticlesSolved);
-                w.WriteLine("HR," + scores1.RootMeanSquareDifference + "," + results1.TotalUsers + "," + results1.UsersSolved + "," + results1.TotalArticles + "," + results1.ArticlesSolved);
+                w.WriteLine("model,rmse,users,user-solved,precision,recall");
+                w.WriteLine("UCF," + scores2.RootMeanSquareDifference + "," + results2.TotalUsers + "," + results2.UsersSolved + "," + results2.AveragePrecision + "," + results2.AverageRecall);
+                w.WriteLine("SVD," + scores3.RootMeanSquareDifference + "," + results3.TotalUsers + "," + results3.UsersSolved + "," + results3.AveragePrecision + "," + results3.AverageRecall);
+                w.WriteLine("ICF," + scores4.RootMeanSquareDifference + "," + results4.TotalUsers + "," + results4.UsersSolved + "," + results4.AveragePrecision + "," + results4.AverageRecall);
+                w.WriteLine("HR," + scores1.RootMeanSquareDifference + "," + results1.TotalUsers + "," + results1.UsersSolved + "," + results1.AveragePrecision + "," + results1.AverageRecall);
             }
         }
     }

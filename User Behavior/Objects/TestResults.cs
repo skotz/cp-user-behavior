@@ -10,18 +10,18 @@ namespace UserBehavior.Objects
     {
         public int TotalUsers { get; set; }
 
-        public int TotalArticles { get; set; }
-
-        public int ArticlesSolved { get; set; }
-
         public int UsersSolved { get; set; }
 
-        public TestResults(int totalUsers, int usersSolved, int totalArticles, int articlesSolved)
+        public double AverageRecall { get; set; }
+
+        public double AveragePrecision { get; set; }
+
+        public TestResults(int totalUsers, int usersSolved, double averageRecall, double averagePrecision)
         {
             TotalUsers = totalUsers;
-            ArticlesSolved = articlesSolved;
             UsersSolved = usersSolved;
-            TotalArticles = totalArticles;
+            AverageRecall = averageRecall;
+            AveragePrecision = averagePrecision;
         }
     }
 }

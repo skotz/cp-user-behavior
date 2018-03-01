@@ -18,14 +18,15 @@ namespace UserBehavior.Recommenders
             SimpleRater rater = new SimpleRater();
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
             UserArticleRatingsTable ratings = ubt.GetUserArticleRatingsTable(rater);
-
-            int correctArticles = 0;
+            
             int correctUsers = 0;
+            double averagePrecision = 0.0;
+            double averageRecall = 0.0;
 
             // Get a list of users in this database who interacted with an article for the first time
             List<int> distinctUsers = db.UserActions.Select(x => x.UserID).Distinct().ToList();
 
-            int distinctUserArticles = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID }).Count();
+            var distinctUserArticles = db.UserActions.GroupBy(x => new { x.UserID, x.ArticleID });
 
             // Now get suggestions for each of these users
             foreach (int user in distinctUsers)
@@ -34,6 +35,9 @@ namespace UserBehavior.Recommenders
                 bool foundOne = false;
                 int userIndex = ratings.UserIndexToID.IndexOf(user);
 
+                int userCorrectArticles = 0;
+                int userTotalArticles = distinctUserArticles.Count(x => x.Key.UserID == user);
+
                 foreach (Suggestion s in suggestions)
                 {
                     int articleIndex = ratings.ArticleIndexToID.IndexOf(s.ArticleID);
@@ -41,7 +45,7 @@ namespace UserBehavior.Recommenders
                     // If one of the top N suggestions is what the user ended up reading, then we're golden
                     if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                     {
-                        correctArticles++;
+                        userCorrectArticles++;
 
                         if (!foundOne)
                         {
@@ -50,9 +54,15 @@ namespace UserBehavior.Recommenders
                         }
                     }
                 }
+
+                averagePrecision += (double)userCorrectArticles / numSuggestions;
+                averageRecall += (double)userCorrectArticles / userTotalArticles;
             }
 
-            return new TestResults(distinctUsers.Count, correctUsers, distinctUserArticles, correctArticles);
+            averagePrecision /= distinctUsers.Count;
+            averageRecall /= distinctUsers.Count;
+
+            return new TestResults(distinctUsers.Count, correctUsers, averageRecall, averagePrecision);
         }
 
         public static ScoreResults Score(this IRecommender classifier, UserBehaviorDatabase db, IRater rater)
