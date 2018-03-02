@@ -16,8 +16,6 @@ namespace UserBehavior.Objects
 
         public List<int> ArticleIndexToID { get; set; }
 
-        public int NumberOfTags { get; set; }
-
         public UserArticleRatingsTable()
         {
             Users = new List<UserArticleRatings>();

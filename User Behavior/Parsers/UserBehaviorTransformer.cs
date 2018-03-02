@@ -27,7 +27,6 @@ namespace UserBehavior.Parsers
             
             table.UserIndexToID = db.Users.OrderBy(x => x.UserID).Select(x => x.UserID).Distinct().ToList();
             table.ArticleIndexToID = db.Articles.OrderBy(x => x.ArticleID).Select(x => x.ArticleID).Distinct().ToList();
-            table.NumberOfTags = db.Tags.Count;
 
             foreach (int userId in table.UserIndexToID)
             {

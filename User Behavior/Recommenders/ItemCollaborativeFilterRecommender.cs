@@ -157,7 +157,6 @@ namespace UserBehavior.Recommenders
             {
                 w.WriteLine(ratings.Users.Count);
                 w.WriteLine(ratings.Users[0].ArticleRatings.Length);
-                w.WriteLine(ratings.NumberOfTags);
 
                 foreach (UserArticleRatings t in ratings.Users)
                 {
@@ -195,9 +194,6 @@ namespace UserBehavior.Recommenders
             {
                 long total = long.Parse(r.ReadLine());
                 int features = int.Parse(r.ReadLine());
-
-                int tags = int.Parse(r.ReadLine());
-                ratings.NumberOfTags = tags;
 
                 for (long i = 0; i < total; i++)
                 {
