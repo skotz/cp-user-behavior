@@ -26,11 +26,10 @@ namespace Example
         {
             InitializeComponent();
 
-            IRater rate = new LinearRater();
+            IRater rate = new LinearRater(-4, 2, 3, 1);
             IComparer compare = new CorrelationUserComparer();
 
             recommender = new UserCollaborativeFilterRecommender(compare, rate, 50);
-            //recommender = new MatrixFactorizationRecommender(30, rate);
 
             if (File.Exists(savedModel))
             {
@@ -54,6 +53,7 @@ namespace Example
         {
             if (!bgWorker.IsBusy && ofdGetUserBehaviors.ShowDialog() == DialogResult.OK)
             {
+                rtbOutput.Text = "Training...";
                 bgWorker.RunWorkerAsync(ofdGetUserBehaviors.FileName);
                 EnableForm(false);
             }

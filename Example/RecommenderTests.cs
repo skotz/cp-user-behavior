@@ -96,10 +96,6 @@ namespace Example
             ScoreResults scores1 = hbr.Score(sp.TestingDB, rate);
             TestResults results1 = hbr.Test(sp.TestingDB, 30);
 
-            ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
-            mfr = new MatrixFactorizationRecommender(30, rate);
-            icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
-
             ubc.Train(sp.TrainingDB);
             ScoreResults scores2 = ubc.Score(sp.TestingDB, rate);
             TestResults results2 = ubc.Test(sp.TestingDB, 30);

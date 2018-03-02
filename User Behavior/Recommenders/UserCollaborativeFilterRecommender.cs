@@ -98,7 +98,7 @@ namespace UserBehavior.Recommenders
                         if (neighbors[u].ArticleRatings[articleIndex] != 0)
                         {
                             // Calculate the weighted score for this article   
-                            score += neighbors[u].ArticleRatings[articleIndex]; // - avgRating; // * neighbors[u].Score;
+                            score += neighbors[u].ArticleRatings[articleIndex] - ((u + 1.0) / 100.0);
                             count++;
                         }
                     }
