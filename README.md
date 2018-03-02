@@ -5,6 +5,7 @@
 This project demonstrates user-based and item-based collaborative filtering with matrix factorization using
 the user behavior data provided by Code Project for the 2018 AI Challenge.
 
+### Usage
 
 ```C#
 IRater rate = new LinearRater(-4, 2, 3, 1);
@@ -17,5 +18,8 @@ ISplitter split = new DaySplitter(db, 5);
 
 recommender.Train(split.TrainingDB);
 
+ScoreResults scores = recommender.Score(split.TestingDB, rate);
+TestResults results = recommender.Test(split.TestingDB, 30);
 
+List<Suggestion> suggestions = recommender.GetSuggestions(someUserId, numberOfRecommendations);
 ```
