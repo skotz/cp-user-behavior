@@ -82,10 +82,15 @@ namespace Example
             //uart.SaveSparcityVisual("sparcity.bmp");
             //uart.SaveUserRatingDistribution("distrib.csv");
             //uart.SaveArticleRatingDistribution("distriba.csv");
-
+            
             var rate = new LinearRater();
             var sp = new DaySplitter(db, 5);
             var uc = new CorrelationUserComparer();
+
+            //var rr = new RandomRecommender();
+            //rr.Train(sp.TrainingDB);
+            //ScoreResults scores5 = rr.Score(sp.TestingDB, rate);
+            //TestResults results5 = rr.Test(sp.TestingDB, 30);
 
             var ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
             var mfr = new MatrixFactorizationRecommender(30, rate);
@@ -95,6 +100,10 @@ namespace Example
             hbr.Train(sp.TrainingDB);
             ScoreResults scores1 = hbr.Score(sp.TestingDB, rate);
             TestResults results1 = hbr.Test(sp.TestingDB, 30);
+
+            ubc = new UserCollaborativeFilterRecommender(uc, rate, 30);
+            mfr = new MatrixFactorizationRecommender(30, rate);
+            icf = new ItemCollaborativeFilterRecommender(uc, rate, 30);
 
             ubc.Train(sp.TrainingDB);
             ScoreResults scores2 = ubc.Score(sp.TestingDB, rate);

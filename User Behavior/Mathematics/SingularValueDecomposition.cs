@@ -13,7 +13,7 @@ namespace UserBehavior.Mathematics
         private double averageGlobalRating;
 
         private int learningIterations;
-        private double learningRate = 0.005;
+        private double learningRate;
         private double learningDescent = 0.99;
         private double regularizationTerm = 0.02;
         
@@ -32,9 +32,15 @@ namespace UserBehavior.Mathematics
         }
 
         public SingularValueDecomposition(int features, int iterations)
+            : this(features, iterations, 0.005)
+        {
+        }
+
+        public SingularValueDecomposition(int features, int iterations, double learningSpeed)
         {
             numFeatures = features;
             learningIterations = iterations;
+            learningRate = learningSpeed;
         }
 
         private void Initialize(UserArticleRatingsTable ratings)
@@ -91,9 +97,14 @@ namespace UserBehavior.Mathematics
                     {
                         if (ratings.Users[userIndex].ArticleRatings[articleIndex] != 0)
                         {
-                            double estimatedRating = averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + Matrix.GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
+                            double predictedRating = averageGlobalRating + userBiases[userIndex] + articleBiases[articleIndex] + Matrix.GetDotProduct(userFeatures[userIndex], articleFeatures[articleIndex]);
 
-                            double error = ratings.Users[userIndex].ArticleRatings[articleIndex] - estimatedRating;
+                            double error = ratings.Users[userIndex].ArticleRatings[articleIndex] - predictedRating;
+
+                            if (double.IsNaN(predictedRating))
+                            {
+                                throw new Exception("Encountered a non-number while factorizing a matrix! Try decreasing the learning rate.");
+                            }
 
                             squaredError += Math.Pow(error, 2);
                             count++;

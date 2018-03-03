@@ -45,7 +45,7 @@ namespace Example
                 }
             }
 
-            //RecommenderTests.TestAllRecommenders();
+            RecommenderTests.TestAllRecommenders();
             //RecommenderTests.FindBestRaterWeights();
         }
 
