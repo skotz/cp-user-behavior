@@ -23,11 +23,16 @@ namespace UserBehavior.Recommenders
         private int latentUserFeatureCount;
 
         public UserCollaborativeFilterRecommender(IComparer userComparer, IRater implicitRater, int numberOfNeighbors)
+            : this(userComparer, implicitRater, numberOfNeighbors, 20)
+        {
+        }
+
+        public UserCollaborativeFilterRecommender(IComparer userComparer, IRater implicitRater, int numberOfNeighbors, int latentFeatures)
         {
             comparer = userComparer;
             rater = implicitRater;
             neighborCount = numberOfNeighbors;
-            latentUserFeatureCount = 20;
+            latentUserFeatureCount = latentFeatures;
         }
 
         public void Train(UserBehaviorDatabase db)
@@ -35,10 +40,13 @@ namespace UserBehavior.Recommenders
             UserBehaviorTransformer ubt = new UserBehaviorTransformer(db);
             ratings = ubt.GetUserArticleRatingsTable(rater);
 
-            SingularValueDecomposition svd = new SingularValueDecomposition(latentUserFeatureCount, 100);
-            SvdResult results = svd.FactorizeMatrix(ratings);
-            
-            ratings.AppendUserFeatures(results.UserFeatures);
+            if (latentUserFeatureCount > 0)
+            {
+                SingularValueDecomposition svd = new SingularValueDecomposition(latentUserFeatureCount, 100);
+                SvdResult results = svd.FactorizeMatrix(ratings);
+
+                ratings.AppendUserFeatures(results.UserFeatures);
+            }
         }
         
         public double GetRating(int userId, int articleId)
