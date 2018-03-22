@@ -60,7 +60,7 @@ namespace UserBehavior.Recommenders
             }
 
             // Sort the articles by rating
-            items.Sort((c, n) => n.Item2.CompareTo(n.Item2));
+            items.Sort((c, n) => n.Item2.CompareTo(c.Item2));
 
             return items.Select(x => x.Item1).ToList();
         }
