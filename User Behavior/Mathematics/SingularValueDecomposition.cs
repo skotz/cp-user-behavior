@@ -62,7 +62,7 @@ namespace UserBehavior.Mathematics
             }
 
             articleFeatures = new double[numArticles][];
-            for (int articleIndex = 0; articleIndex < numUsers; articleIndex++)
+            for (int articleIndex = 0; articleIndex < numArticles; articleIndex++)
             {
                 articleFeatures[articleIndex] = new double[numFeatures];
 
