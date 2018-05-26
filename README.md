@@ -1,9 +1,8 @@
 # C# Recommendation Engine
 
-[Read my Code Project article!](https://www.codeproject.com/Articles/1232150/Building-an-Article-Recommendation-Engine)
-
-This project demonstrates user-based and item-based collaborative filtering with matrix factorization using
-the user behavior data provided by Code Project for the 2018 AI Challenge.
+This project and [corresponding article](https://www.codeproject.com/Articles/1232150/Building-an-Article-Recommendation-Engine) won first place in Code Project's 2018 Machine Learning and Artificial Intelligence Competition.
+It demonstrates user-based and item-based collaborative filtering with matrix factorization using
+the user behavior data provided by Code Project for the challenge.
 
 ### Usage
 
